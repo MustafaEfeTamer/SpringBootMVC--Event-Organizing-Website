@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+<div>
+    <h2 th:text="${etkinlik.etkinlikAdi}">Etkinlik Adı</h2>
+    <p th:text="${etkinlik.aciklama}">Açıklama</p>
+    <p th:text="${etkinlik.kategori}">Kategori</p>
+</div>
+
+</body>
+</html>

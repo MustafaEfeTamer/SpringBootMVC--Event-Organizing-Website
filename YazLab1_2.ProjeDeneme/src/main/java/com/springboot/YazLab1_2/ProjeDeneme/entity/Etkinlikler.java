@@ -40,12 +40,14 @@ public class Etkinlikler {
     @OneToMany(mappedBy = "etkinlikId")
     private List<Katilimcilar> katilimcilar;
 
+    private int olusturan;
+
 
     public Etkinlikler(){
 
     }
 
-    public Etkinlikler(String etkinlikAdi, String aciklama, Date tarih, LocalTime saat, Integer etkinlikSuresi, String konum, String kategori, String resimUrl) {
+    public Etkinlikler(String etkinlikAdi, String aciklama, Date tarih, LocalTime saat, Integer etkinlikSuresi, String konum, String kategori, String resimUrl, Integer olusturan) {
         this.etkinlikAdi = etkinlikAdi;
         this.aciklama = aciklama;
         this.tarih = tarih;
@@ -54,6 +56,7 @@ public class Etkinlikler {
         this.konum = konum;
         this.kategori = kategori;
         this.resimUrl = resimUrl;
+        this.olusturan = olusturan;
     }
 
     public Integer getId() {
@@ -128,6 +131,14 @@ public class Etkinlikler {
         this.resimUrl = resimUrl;
     }
 
+    public int getOlusturan() {
+        return olusturan;
+    }
+
+    public void setOlusturan(int olusturan) {
+        this.olusturan = olusturan;
+    }
+
     @Override
     public String toString() {
         return "Etkinlikler{" +
@@ -141,6 +152,7 @@ public class Etkinlikler {
                 ", kategori='" + kategori + '\'' +
                 ", resimUrl='" + resimUrl + '\'' +
                 ", katilimcilar=" + katilimcilar +
+                ", olusturan=" + olusturan +
                 '}';
     }
 }

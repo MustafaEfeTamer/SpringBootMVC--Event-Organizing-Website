@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface KullanicilarRepository extends JpaRepository<Kullanicilar, Integer> {
     Optional<Kullanicilar> findByKullaniciAdiAndSifre(String kullaniciAdi, String sifre);
     Optional<Kullanicilar> findByEPosta(String ePosta);
+    Optional<Kullanicilar> findByKullaniciAdi(String kullaniciAdi);
 }

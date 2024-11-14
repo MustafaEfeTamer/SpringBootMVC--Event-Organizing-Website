@@ -1,27 +1,30 @@
 package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
+import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
-import jakarta.persistence.Column;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/kullanicilar")
 public class KullanicilarController {
 
     private KullanicilarService kullanicilarService;
+    private EtkinliklerService etkinliklerService;
 
-    public KullanicilarController(KullanicilarService kullanicilarService) {
+    public KullanicilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService) {
         this.kullanicilarService = kullanicilarService;
+        this.etkinliklerService = etkinliklerService;
     }
+
 
     @GetMapping("/login")   // tarayıcıdan url girerek alının isteklerin hepsi 'get' tir
     public String showLoginPage() {
@@ -33,17 +36,22 @@ public class KullanicilarController {
                         @RequestParam("sifre") String sifre,
                         Model model) throws InterruptedException {
 
-        // Eğer kullanıcı adı ve şifre admin ise admin sayfasına yönlendir
         if (kullaniciAdi.equals("admin") && sifre.equals("admin123")) {
             model.addAttribute("success", true);  // Başarılı giriş mesajı
-            //Thread.sleep(1000);
             return "admin"; // Admin sayfasına yönlendirir
         }
 
         try {
             Kullanicilar kullanici = kullanicilarService.findByKullaniciAdiveSifre(kullaniciAdi, sifre);
             model.addAttribute("success", true);  // Başarılı giriş mesajı
-            //Thread.sleep(1000);
+            model.addAttribute("profileImageUrl", kullanici.getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
+            // Kullanıcıya ait etkinlikleri al
+            List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanici.getId());
+            model.addAttribute("userEvents", userEvents);
+
+            // Tüm etkinlikleri al
+            List<Etkinlikler> allEvents = etkinliklerService.findAll();
+            model.addAttribute("allEvents", allEvents);
             return "user"; // Aynı sayfada başarılı mesajını gösterir
         } catch (RuntimeException e) {
             model.addAttribute("error", true);  // Hatalı giriş mesajı
@@ -147,6 +155,7 @@ public class KullanicilarController {
         }
         return "forget-password";
     }
+
 
     @GetMapping("/user")
     public String showUser(){

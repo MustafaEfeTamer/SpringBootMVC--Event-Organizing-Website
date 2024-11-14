@@ -1,24 +1,30 @@
 package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
 import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
+import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/etkinlikler")
 public class EtkinliklerController {
     private EtkinliklerService etkinliklerService;
+    private KullanicilarService kullanicilarService;
 
-    public EtkinliklerController(EtkinliklerService etkinliklerService) {
+    public EtkinliklerController(EtkinliklerService etkinliklerService, KullanicilarService kullanicilarService) {
         this.etkinliklerService = etkinliklerService;
+        this.kullanicilarService = kullanicilarService;
     }
 
     @PostMapping("/register")
@@ -51,4 +57,34 @@ public class EtkinliklerController {
             return "redirect:/kullanicilar/user";
         }
     }
+
+    @GetMapping("/details/{id}")
+    public String showEventDetails(@PathVariable("id") Integer id, Model model) {
+        Optional<Etkinlikler> etkinlikOptional = etkinliklerService.findById(id); // Servisten etkinlik detayını alın
+
+        // Etkinlik varsa model'e ekleyin
+        Etkinlikler etkinlik = etkinlikOptional.get();
+        model.addAttribute("etkinlik", etkinlik);
+        return "event-details"; // event-details.html sayfasını render eder
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteEvent(@PathVariable("id") Integer id, Model model) {
+        // Etkinliği sil
+        etkinliklerService.deleteById(id);
+        return "user";
+    }
+
+/*    @CrossOrigin(origins = "http://localhost:2727")
+    @DeleteMapping("/delete/{id}")
+    @ResponseBody // JSON döndürmek için
+    public ResponseEntity<String> deleteEvent(@PathVariable("id") Integer id) {
+        System.out.println("efem");
+        try {
+            etkinliklerService.deleteById(id);
+            return ResponseEntity.ok("Etkinlik başarıyla silindi.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Etkinlik silinemedi.");
+        }
+    }*/
 }

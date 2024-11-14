@@ -8,4 +8,5 @@ public interface KullanicilarService {
     Kullanicilar save(Kullanicilar theKullanici);
     boolean existsByEmail(String ePosta); // E-posta doğrulama metodu
     boolean resetPassword(String ePosta, String sifre); // Şifre güncelleme metodu
+    Kullanicilar findByKullaniciAdi(String kullaniciAdi);
 }

@@ -53,4 +53,18 @@ public class KullanicilarServiceImpl implements KullanicilarService{
         }
         return false;
     }
+
+    @Override
+    public Kullanicilar findByKullaniciAdi(String kullaniciAdi) {
+        Optional<Kullanicilar> result = kullanicilarRepository.findByKullaniciAdi(kullaniciAdi);
+
+        Kullanicilar theKullanicilar = null;
+
+        if(result.isPresent()){
+            theKullanicilar = result.get();
+        }else{
+            throw new RuntimeException();
+        }
+        return theKullanicilar;
+    }
 }
