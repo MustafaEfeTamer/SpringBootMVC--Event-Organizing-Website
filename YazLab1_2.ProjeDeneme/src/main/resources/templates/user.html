@@ -17,6 +17,7 @@
                 <img th:src="${profileImageUrl}" alt="Kullanıcı Profili">
             </div>
             <a th:href="@{/kullanicilar/userNotifications}" class="btn btn-warning notifications-btn">Bildirimler</a>
+            <a th:href="@{/kullanicilar/login}" class="btn btn-danger logout-btn">Hesaptan Çıkış</a>
         </div>
     </div>
 
@@ -51,26 +52,14 @@
             <h4>Oluşturduğum Etkinlikler</h4>
             <div th:each="etkinlik : ${userEvents}" class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
+                    <img th:src="${etkinlik.resimUrl}" alt="Etkinlik Resmi" class="event-img">
                     <h5 th:text="${etkinlik.etkinlikAdi}">Etkinlik Adı</h5>
                 </div>
                 <div>
                     <!-- Güncelleme ve Silme Butonları -->
-                    <a th:href="@{/etkinlikler/details/{id}(id=${etkinlik.id})}" class="btn btn-warning btn-sm">Detay Göster</a>
                     <a th:href="@{/etkinlikler/update/{id}(id=${etkinlik.id})}" class="btn btn-warning btn-sm">Güncelle</a>
                     <a th:href="@{/etkinlikler/delete/{id}(id=${etkinlik.id})}" class="btn btn-danger btn-sm">Sil</a>
                 </div>
-
-<!--                <div id="event-[[${etkinlik.id}]]" class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 th:text="${etkinlik.etkinlikAdi}">Etkinlik Adı</h5>
-                    </div>
-                    <div>
-                        <a th:href="@{/etkinlikler/details/{id}(id=${etkinlik.id})}" class="btn btn-warning btn-sm">Detay Göster</a>
-                        <a th:href="@{/etkinlikler/update/{id}(id=${etkinlik.id})}" class="btn btn-warning btn-sm">Güncelle</a>
-                        <a href="javascript:void(0);" onclick="deleteEvent([[${etkinlik.id}]])" class="btn btn-danger btn-sm">Sil</a>
-                    </div>
-                </div>-->
-
             </div>
         </div>
 
@@ -80,7 +69,11 @@
             <h4>Mevcut Etkinlikler</h4>
             <div th:each="etkinlik : ${allEvents}" class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
+                    <img th:src="${etkinlik.resimUrl}" alt="Etkinlik Resmi" class="event-img">
                     <h5 th:text="${etkinlik.etkinlikAdi}">Etkinlik Adı</h5>
+                </div>
+                <div>
+                    <a th:href="@{/etkinlikler/showEvent/{id}(id=${etkinlik.id})}" class="btn btn-warning btn-sm">Etkinlik Detayı</a>
                 </div>
             </div>
         </div>
@@ -89,23 +82,5 @@
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- AJAX İsteği için JavaScript -->
-<!--<script>
-    function deleteEvent(eventId) {
-        // AJAX isteği oluşturun
-        fetch(`/etkinlikler/delete/${eventId}`, {
-            method: 'DELETE'
-        })
-        .then(response => {
-            if (response.ok) {
-                // Başarılı silme işleminde sayfa yenilenmeden etkinlik listesini güncelleyin
-                document.getElementById(`event-${eventId}`).remove();
-            } else {
-                alert("Etkinlik silinemedi.");
-            }
-        })
-        .catch(error => console.error("Silme işlemi sırasında hata oluştu:", error));
-    }
-</script>-->
 </body>
 </html>

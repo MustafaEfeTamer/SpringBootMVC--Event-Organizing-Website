@@ -10,15 +10,18 @@
 }
 
 body {
-    background: #8D6E63;
+    background: url('https://marketplace.canva.com/EAF-dgzMak0/1/0/1600w/canva-yaln%C4%B1zl%C4%B1k-ve-g%C3%BCne%C5%9F-temal%C4%B1-masa%C3%BCst%C3%BC-arkaplan-o9D_niF_zUo.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Poppins', sans-serif;
 }
+
 
 .wrapper {
     max-width: 350px;
     min-height: 500px;
     margin: 80px auto;
     padding: 40px 30px 30px 30px;
-    background-color: #C0CA33;
+    background-color: #2F4F4F;
     border-radius: 15px;
     box-shadow: 13px 13px 20px #cbced1, -13px -13px 20px #fff;
 }

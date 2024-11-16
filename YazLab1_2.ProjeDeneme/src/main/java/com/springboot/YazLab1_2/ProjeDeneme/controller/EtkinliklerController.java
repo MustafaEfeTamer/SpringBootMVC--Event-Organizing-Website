@@ -1,19 +1,15 @@
 package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
-import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
 import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -47,6 +43,7 @@ public class EtkinliklerController {
             yeniEtkinlik.setSaat(saat);
             yeniEtkinlik.setTarih(tarih);
             yeniEtkinlik.setResimUrl(resimUrl);
+            yeniEtkinlik.setOlusturan(KullanicilarController.kullaniciIdOlusturanIcin);
 
             etkinliklerService.save(yeniEtkinlik);
 
@@ -58,15 +55,46 @@ public class EtkinliklerController {
         }
     }
 
-    @GetMapping("/details/{id}")
-    public String showEventDetails(@PathVariable("id") Integer id, Model model) {
-        Optional<Etkinlikler> etkinlikOptional = etkinliklerService.findById(id); // Servisten etkinlik detayını alın
-
-        // Etkinlik varsa model'e ekleyin
-        Etkinlikler etkinlik = etkinlikOptional.get();
-        model.addAttribute("etkinlik", etkinlik);
-        return "event-details"; // event-details.html sayfasını render eder
+    @GetMapping("/update/{id}")
+    public String showUpdateEventPage(@PathVariable("id") Integer id, Model model) {
+        Optional<Etkinlikler> etkinlikOptional = etkinliklerService.findById(id);
+        if (etkinlikOptional.isPresent()) {
+            model.addAttribute("etkinlik", etkinlikOptional.get());
+            return "event-update-page"; // Güncelleme sayfasını render eder
+        }
+        model.addAttribute("error", "Etkinlik bulunamadı!");
+        return "redirect:/kullanicilar/user";
     }
+
+
+    @PostMapping("/update/{id}")
+    public String updateEvent(@PathVariable("id") Integer id,
+                              @RequestParam("etkinlikAdi") String etkinlikAdi,
+                              @RequestParam("aciklama") String aciklama,
+                              @RequestParam("etkinlikSuresi") Integer etkinlikSuresi,
+                              @RequestParam("konum") String konum,
+                              @RequestParam("kategori") String kategori,
+                              @RequestParam("saat") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime saat,
+                              @RequestParam("tarih") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tarih,
+                              @RequestParam("resimUrl") String resimUrl) {
+        Optional<Etkinlikler> etkinlikOptional = etkinliklerService.findById(id);
+        if (etkinlikOptional.isPresent()) {
+            Etkinlikler etkinlik = etkinlikOptional.get();
+            etkinlik.setEtkinlikAdi(etkinlikAdi);
+            etkinlik.setAciklama(aciklama);
+            etkinlik.setEtkinlikSuresi(etkinlikSuresi);
+            etkinlik.setKonum(konum);
+            etkinlik.setKategori(kategori);
+            etkinlik.setSaat(saat);
+            etkinlik.setTarih(tarih);
+            etkinlik.setResimUrl(resimUrl);
+
+            etkinliklerService.save(etkinlik);
+            return "redirect:/kullanicilar/user"; // Güncelleme sonrası kullanıcı sayfasına dön
+        }
+        return "redirect:/kullanicilar/user"; // Hata durumunda kullanıcı sayfasına dön
+    }
+
 
     @GetMapping("/delete/{id}")
     public String deleteEvent(@PathVariable("id") Integer id, Model model) {
@@ -75,16 +103,14 @@ public class EtkinliklerController {
         return "user";
     }
 
-/*    @CrossOrigin(origins = "http://localhost:2727")
-    @DeleteMapping("/delete/{id}")
-    @ResponseBody // JSON döndürmek için
-    public ResponseEntity<String> deleteEvent(@PathVariable("id") Integer id) {
-        System.out.println("efem");
-        try {
-            etkinliklerService.deleteById(id);
-            return ResponseEntity.ok("Etkinlik başarıyla silindi.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Etkinlik silinemedi.");
+    @GetMapping("/showEvent/{id}")
+    public String showEventPage(@PathVariable("id") Integer id, Model model) {
+        Optional<Etkinlikler> etkinlikOptional = etkinliklerService.findById(id);
+        if (etkinlikOptional.isPresent()) {
+            model.addAttribute("etkinlik", etkinlikOptional.get());
+            return "event-page"; // Güncelleme sayfasını render eder
         }
-    }*/
+        model.addAttribute("error", "Etkinlik bulunamadı!");
+        return "redirect:/kullanicilar/user";
+    }
 }

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/kullanicilar")
@@ -19,6 +18,8 @@ public class KullanicilarController {
 
     private KullanicilarService kullanicilarService;
     private EtkinliklerService etkinliklerService;
+    public static int kullaniciIdOlusturanIcin;
+
 
     public KullanicilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService) {
         this.kullanicilarService = kullanicilarService;
@@ -43,6 +44,7 @@ public class KullanicilarController {
 
         try {
             Kullanicilar kullanici = kullanicilarService.findByKullaniciAdiveSifre(kullaniciAdi, sifre);
+            kullaniciIdOlusturanIcin = kullanici.getId(); // user ekranındaki olusturan id için
             model.addAttribute("success", true);  // Başarılı giriş mesajı
             model.addAttribute("profileImageUrl", kullanici.getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
             // Kullanıcıya ait etkinlikleri al
@@ -103,7 +105,6 @@ public class KullanicilarController {
             return "register";
         }
     }
-
 
 
     // Şifre yenileme sayfasını göstermek için GetMapping
