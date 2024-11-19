@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface EtkinliklerRepository extends JpaRepository<Etkinlikler, Integer> {
     List<Etkinlikler> findByOlusturan(Integer olusturan);
+    Optional<Etkinlikler> findById(Long id);
 }

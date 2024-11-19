@@ -51,6 +51,7 @@
 
 /* Etkinlik Oluştur */
 .sidebar-left {
+    margin-top: -30px;
     background-color: #455A64;
     padding: 15px;
     margin-left: 40px;
@@ -69,6 +70,7 @@
 
 /* Oluşturduğum etkinlikler */
 .sidebar-right {
+    margin-top: -30px;
     background-color: #607D8B;
     padding: 15px;
     margin-right: 10px;
@@ -81,6 +83,7 @@
 
 /* Mevcut Etkinlikler */
 .main-content {
+    margin-top: -30px;
     background-color: #90A4AE;
     padding: 20px;
     border-radius: 15px;  /*Yuvarlak köşeler */

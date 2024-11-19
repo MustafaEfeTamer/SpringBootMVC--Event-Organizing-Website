@@ -39,7 +39,13 @@ public class EtkinliklerServiceImpl implements EtkinliklerService{
     }
 
     @Override
+    public Optional<Etkinlikler> findByIdLong(Long id) {
+        return etkinliklerRepository.findById(id);
+    }
+
+    @Override
     public void deleteById(Integer id) {
         etkinliklerRepository.deleteById(id);
     }
+
 }

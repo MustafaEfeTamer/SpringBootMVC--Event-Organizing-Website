@@ -113,8 +113,8 @@
 }
 
 .event-img {
-    width: 80px;
-    height: 80px;
+    width: 150px;
+    height: 100px;
     object-fit: cover; /* Resmi kırpmadan boyutlandırır */
     margin-right: 15px;
     border-radius: 5px; /* Köşeleri yuvarlatır */

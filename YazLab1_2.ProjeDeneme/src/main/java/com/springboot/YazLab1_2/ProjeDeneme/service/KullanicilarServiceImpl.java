@@ -67,4 +67,20 @@ public class KullanicilarServiceImpl implements KullanicilarService{
         }
         return theKullanicilar;
     }
+
+    @Override
+    public Kullanicilar findByKullaniciId(Integer id) {
+        Optional<Kullanicilar> result = kullanicilarRepository.findById(id);
+
+        Kullanicilar theKullanicilar = null;
+
+        if(result.isPresent()){
+            theKullanicilar = result.get();
+        }else{
+            throw new RuntimeException();
+        }
+        return theKullanicilar;
+    }
+
+
 }

@@ -3,60 +3,58 @@ package com.springboot.YazLab1_2.ProjeDeneme.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Katılımcılar")
+@Table(name = "katılımcılar")
 public class Katilimcilar {
-    @EmbeddedId
-    private KatilimciId katilimciId;
-
-    @ManyToOne
-    @MapsId("kullaniciId")
-    @JoinColumn(name = "Kullanıcı_ID")
-    private Kullanicilar kullaniciId;
-
-    @ManyToOne
-    @MapsId("etkinlikId")
-    @JoinColumn(name = "Etkinlik_ID")
-    private Etkinlikler etkinlikId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, updatable = false)
+    private Long id;
+    @Column(name = "kullanıcı_id",nullable = false)
+    private Long kullaniciId;
+    @Column(name = "etkinlik_id",nullable = false)
+    private Long etkinlikId;
 
 
     public Katilimcilar(){
 
     }
 
-    public Katilimcilar(KatilimciId katilimciId, Kullanicilar kullaniciId, Etkinlikler etkinlikId) {
-        this.katilimciId = katilimciId;
+    public Katilimcilar(Long id, Long kullaniciId, Long etkinlikId) {
+        this.id = id;
         this.kullaniciId = kullaniciId;
         this.etkinlikId = etkinlikId;
     }
 
-    public KatilimciId getKatilimciId() {
-        return katilimciId;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setKatilimciId(KatilimciId katilimciId) {
-        this.katilimciId = katilimciId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Kullanicilar getKullaniciId() {
+    public Long getKullaniciId() {
         return kullaniciId;
     }
 
-    public void setKullaniciId(Kullanicilar kullaniciId) {
+    public void setKullaniciId(Long kullaniciId) {
         this.kullaniciId = kullaniciId;
     }
 
-    public Etkinlikler getEtkinlikId() {
+    public Long getEtkinlikId() {
         return etkinlikId;
     }
 
-    public void setEtkinlikId(Etkinlikler etkinlikId) {
+    public void setEtkinlikId(Long etkinlikId) {
         this.etkinlikId = etkinlikId;
     }
 
     @Override
     public String toString() {
-        return "KatilimciId{" +
-                "kullaniciId=" + kullaniciId +
+        return "Katilimcilar{" +
+                "id=" + id +
+                ", kullaniciId=" + kullaniciId +
                 ", etkinlikId=" + etkinlikId +
                 '}';
     }

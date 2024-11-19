@@ -1,6 +1,7 @@
 package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
 import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -47,8 +49,21 @@ public class EtkinliklerController {
 
             etkinliklerService.save(yeniEtkinlik);
 
+            // html sayfasını yeniden düzenliyoruz
+            Kullanicilar kullanicilar = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin); // user ekranındaki olusturan id için
+            // Kullanıcı resim URL'sini modele ekliyoruz
+            model.addAttribute("profileImageUrl", kullanicilar.getProfilFotografi());
+
+            // Kullanıcıya ait etkinlikleri al
+            List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanicilar.getId());
+            model.addAttribute("userEvents", userEvents);
+
+            // Tüm etkinlikleri al
+            List<Etkinlikler> allEvents = etkinliklerService.findAll();
+            model.addAttribute("allEvents", allEvents);
+
             model.addAttribute("registrationSuccess", true);
-            return "redirect:/kullanicilar/user";
+            return "user";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", "Geçersiz değer.");
             return "redirect:/kullanicilar/user";
@@ -76,7 +91,8 @@ public class EtkinliklerController {
                               @RequestParam("kategori") String kategori,
                               @RequestParam("saat") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime saat,
                               @RequestParam("tarih") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date tarih,
-                              @RequestParam("resimUrl") String resimUrl) {
+                              @RequestParam("resimUrl") String resimUrl,
+                              Model model) {
         Optional<Etkinlikler> etkinlikOptional = etkinliklerService.findById(id);
         if (etkinlikOptional.isPresent()) {
             Etkinlikler etkinlik = etkinlikOptional.get();
@@ -89,8 +105,23 @@ public class EtkinliklerController {
             etkinlik.setTarih(tarih);
             etkinlik.setResimUrl(resimUrl);
 
+            // etkinliği güncellemek için
             etkinliklerService.save(etkinlik);
-            return "redirect:/kullanicilar/user"; // Güncelleme sonrası kullanıcı sayfasına dön
+
+            // html sayfasını yeniden düzenliyoruz
+            Kullanicilar kullanicilar = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin); // user ekranındaki olusturan id için
+            // Kullanıcı resim URL'sini modele ekliyoruz
+            model.addAttribute("profileImageUrl", kullanicilar.getProfilFotografi());
+
+            // Kullanıcıya ait etkinlikleri al
+            List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanicilar.getId());
+            model.addAttribute("userEvents", userEvents);
+
+            // Tüm etkinlikleri al
+            List<Etkinlikler> allEvents = etkinliklerService.findAll();
+            model.addAttribute("allEvents", allEvents);
+
+            return "user"; // Güncelleme sonrası kullanıcı sayfasına dön
         }
         return "redirect:/kullanicilar/user"; // Hata durumunda kullanıcı sayfasına dön
     }
@@ -98,9 +129,22 @@ public class EtkinliklerController {
 
     @GetMapping("/delete/{id}")
     public String deleteEvent(@PathVariable("id") Integer id, Model model) {
-        // Etkinliği sil
+        // etkinliği silmek için
         etkinliklerService.deleteById(id);
-        return "user";
+
+        // html sayfasını yeniden düzenliyoruz
+        Kullanicilar kullanicilar = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin); // user ekranındaki olusturan id için
+        // Kullanıcı resim URL'sini modele ekliyoruz
+        model.addAttribute("profileImageUrl", kullanicilar.getProfilFotografi());
+
+        // Kullanıcıya ait etkinlikleri al
+        List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanicilar.getId());
+        model.addAttribute("userEvents", userEvents);
+
+        // Tüm etkinlikleri al
+        List<Etkinlikler> allEvents = etkinliklerService.findAll();
+        model.addAttribute("allEvents", allEvents);
+        return "user"; // Aynı sayfada başarılı mesajını gösterir
     }
 
     @GetMapping("/showEvent/{id}")
@@ -113,4 +157,5 @@ public class EtkinliklerController {
         model.addAttribute("error", "Etkinlik bulunamadı!");
         return "redirect:/kullanicilar/user";
     }
+
 }
