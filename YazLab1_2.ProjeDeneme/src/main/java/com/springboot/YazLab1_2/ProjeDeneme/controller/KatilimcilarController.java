@@ -3,9 +3,11 @@ package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Katilimcilar;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Puanlar;
 import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KatilimcilarService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
+import com.springboot.YazLab1_2.ProjeDeneme.service.PuanlarService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,17 +22,17 @@ import java.util.Optional;
 @RequestMapping("/katilimcilar")
 public class KatilimcilarController {
 
-
     private KullanicilarService kullanicilarService;
     private EtkinliklerService etkinliklerService;
     private KatilimcilarService katilimcilarService;
+    private PuanlarService puanlarService;
 
-    public KatilimcilarController(KatilimcilarService katilimcilarService, KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService) {
-        this.katilimcilarService = katilimcilarService;
+    public KatilimcilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService, KatilimcilarService katilimcilarService, PuanlarService puanlarService) {
         this.kullanicilarService = kullanicilarService;
         this.etkinliklerService = etkinliklerService;
+        this.katilimcilarService = katilimcilarService;
+        this.puanlarService = puanlarService;
     }
-
 
     @GetMapping("/joinEvent/{id}")
     public String joinEvent(@PathVariable("id") Integer id, Model model) {
@@ -64,13 +66,27 @@ public class KatilimcilarController {
             }
 
 
+            List<Katilimcilar> katilimcilarList = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+
+
+            if(katilimcilarList.isEmpty()){
+                model.addAttribute("success", "Etkinliğe Başarıyla Katıldınız ve İLK ETKİNLİK KATILIMINA ÖZEL 20 Puan Kazandınız🥳🎉");
+
+                // başarılı bir şekilde etkinliğe katılacağımız zaman bu methodu çalıştıracağız
+                PuanlarController.updatePoint();
+            }else{
+                model.addAttribute("success", "Etkinliğe Başarıyla Katıldınız ve 10 Puan Kazandınız😀");
+
+                // başarılı bir şekilde etkinliğe katılacağımız zaman bu methodu çalıştıracağız
+                PuanlarController.updatePoint();
+            }
+
             // Çakışma yoksa katılım kaydını oluşturuyoruz
             Katilimcilar yeniKatilimci = new Katilimcilar();
             yeniKatilimci.setKullaniciId((long) KullanicilarController.kullaniciIdOlusturanIcin);
             yeniKatilimci.setEtkinlikId(etkinlik.getId().longValue());
             katilimcilarService.save(yeniKatilimci);
 
-            model.addAttribute("success", "Etkinliğe Başarıyla Katıldınız!");
             model.addAttribute("etkinlik", etkinlik);
             return "event-page"; // Katılım başarılı, ilgili sayfaya yönlendiriyoruz
         } else {

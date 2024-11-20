@@ -41,7 +41,6 @@
     margin: 0;
 }
 
-/* Sağ üst butonlar ve profil alanı */
 .header .profile-area {
     display: flex;
     align-items: center;

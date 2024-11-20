@@ -11,13 +11,19 @@
     <!-- Üst Başlık -->
     <div class="header">
         <h2>Kullanıcı Ana Sayfa</h2>
+        <div>
+            <a th:href="@{/kullanicilar/login}" class="btn btn-danger logout-btn">Hesaptan Çıkış</a>
+        </div>
         <div class="profile-area">
             <a th:href="@{/kullanicilar/userProfile}" class="btn btn-secondary profile-btn">Profilime Git</a>
             <div class="logo">
                 <img th:src="${profileImageUrl}" alt="Kullanıcı Profili">
             </div>
             <a th:href="@{/kullanicilar/userNotifications}" class="btn btn-warning notifications-btn">Bildirimler</a>
-            <a th:href="@{/kullanicilar/login}" class="btn btn-danger logout-btn">Hesaptan Çıkış</a>
+
+            <a href="#" class="btn btn-info user-points-btn">
+                <span th:text="'Puan: ' + ${userPoints}"></span>
+            </a>
         </div>
     </div>
 

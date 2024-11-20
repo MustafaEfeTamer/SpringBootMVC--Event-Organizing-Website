@@ -14,7 +14,12 @@
     <h2>Etkinlik Sayfası</h2>
     <div class="profile-area">
       <!-- javascript ile bir önceki sayfaya dinamik olarak geçişi sağlar -->
+<!--
       <a href="javascript:history.back()" class="btn btn-secondary btn-back">Ana Sayfa</a>
+-->
+
+      <a th:href="@{/kullanicilar/userPage}" class="btn btn-secondary btn-back">Ana Sayfa</a>
+
     </div>
   </div>
 

@@ -1,6 +1,5 @@
 package com.springboot.YazLab1_2.ProjeDeneme.service;
 
-import com.springboot.YazLab1_2.ProjeDeneme.entity.Employee;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
 
 public interface KullanicilarService {

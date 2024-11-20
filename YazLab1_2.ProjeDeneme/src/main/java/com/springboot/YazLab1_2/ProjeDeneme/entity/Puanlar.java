@@ -8,53 +8,50 @@ import java.util.Date;
 @Table(name = "Puanlar")
 public class Puanlar {
 
-    @EmbeddedId
-    private PuanId id;
-
-    @ManyToOne
-    @MapsId("kullaniciId")
-    @JoinColumn(name = "Kullanıcı_ID")
-    private Kullanicilar kullanici;
-
-    @Column(name = "Puan", nullable = false)
-    private Integer puan;
-
-    @Temporal(TemporalType.DATE)
-    @Column(name = "Kazanilan_Tarih", insertable = false, updatable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, updatable = false)
+    private Long id;
+    @Column(name = "Kullanıcı_ID",nullable = false)
+    private int kullaniciId;
+    @Column(name = "Puan",nullable = false)
+    private Long puan;
+    @Column(name = "Kazanilan_Tarih", nullable = false)
     private Date kazanilanTarih;
+
 
     public Puanlar(){
 
     }
 
-    public Puanlar(PuanId id, Kullanicilar kullanici, Integer puan, Date kazanilanTarih) {
+    public Puanlar(Long id, int kullaniciId, Long puan, Date kazanilanTarih) {
         this.id = id;
-        this.kullanici = kullanici;
+        this.kullaniciId = kullaniciId;
         this.puan = puan;
         this.kazanilanTarih = kazanilanTarih;
     }
 
-    public PuanId getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(PuanId id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Kullanicilar getKullanici() {
-        return kullanici;
+    public int getKullaniciId() {
+        return kullaniciId;
     }
 
-    public void setKullanici(Kullanicilar kullanici) {
-        this.kullanici = kullanici;
+    public void setKullaniciId(int kullaniciId) {
+        this.kullaniciId = kullaniciId;
     }
 
-    public Integer getPuan() {
+    public Long getPuan() {
         return puan;
     }
 
-    public void setPuan(Integer puan) {
+    public void setPuan(Long puan) {
         this.puan = puan;
     }
 
@@ -70,7 +67,7 @@ public class Puanlar {
     public String toString() {
         return "Puanlar{" +
                 "id=" + id +
-                ", kullanici=" + kullanici +
+                ", kullaniciId=" + kullaniciId +
                 ", puan=" + puan +
                 ", kazanilanTarih=" + kazanilanTarih +
                 '}';

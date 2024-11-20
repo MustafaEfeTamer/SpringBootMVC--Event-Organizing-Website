@@ -65,10 +65,60 @@
                 -8px -8px 15px #fff;
 }
 
-.logout-btn {
-    margin-left: 30px; /* Diğer butonlardan biraz boşluk */
-    font-weight: bold; /* Yazıyı vurgulamak için */
+.profile-btn{
+    font-weight: bold; /* Yazıyı vurgula */
+    transition: background-color 0.3s ease; /* Hover efekt */
 }
+
+.profile-btn:hover{
+    background-color: #424242; /* Hover efekti */
+}
+
+
+
+.notifications-btn{
+    font-weight: bold; /* Yazıyı vurgula */
+    transition: background-color 0.3s ease; /* Hover efekt */
+}
+
+.notifications-btn:hover{
+    background-color: #EF6C00; /* Hover efekti */
+}
+
+
+.logout-btn {
+        font-weight: bold; /* Yazıyı vurgula */
+        margin-top: -20px;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        left: 20px; /* Sol tarafa 20px mesafe */
+        transition: background-color 0.3s ease; /* Hover efekt */
+}
+
+.logout-btn:hover {
+    background-color: #800000; /* Hover efekti */
+}
+
+.user-points-btn {
+    margin-left: 20px;
+    display: inline-block;
+    background-color: #17a2b8; /* Info renginde bir arka plan */
+    color: white; /* Yazı rengini beyaz yap */
+    font-weight: bold; /* Yazıyı vurgula */
+    font-size: 14px; /* Yazı boyutu */
+    padding: 5px 15px; /* İç boşluk */
+    border-radius: 5px; /* Butona yuvarlatılmış kenar */
+    text-decoration: none; /* Alt çizgiyi kaldır */
+    border: 1px solid #138496; /* Hafif koyu kenarlık */
+    text-align: center; /* Ortalansın */
+    transition: background-color 0.3s ease; /* Hover efekt */
+}
+
+.user-points-btn:hover {
+    background-color: #138496; /* Hover efekti */
+}
+
 
 /* Etkinlik Oluştur */
 .sidebar-left {

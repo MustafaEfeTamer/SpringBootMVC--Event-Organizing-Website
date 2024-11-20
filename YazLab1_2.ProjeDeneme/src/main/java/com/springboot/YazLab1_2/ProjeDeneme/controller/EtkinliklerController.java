@@ -2,8 +2,10 @@ package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Puanlar;
 import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
+import com.springboot.YazLab1_2.ProjeDeneme.service.PuanlarService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,8 +21,10 @@ import java.util.Optional;
 public class EtkinliklerController {
     private EtkinliklerService etkinliklerService;
     private KullanicilarService kullanicilarService;
+    private PuanlarService puanlarService;
 
-    public EtkinliklerController(EtkinliklerService etkinliklerService, KullanicilarService kullanicilarService) {
+    public EtkinliklerController(EtkinliklerService etkinliklerService, KullanicilarService kullanicilarService, PuanlarService puanlarService) {
+        this.puanlarService = puanlarService;
         this.etkinliklerService = etkinliklerService;
         this.kullanicilarService = kullanicilarService;
     }
@@ -61,6 +65,19 @@ public class EtkinliklerController {
             // Tüm etkinlikleri al
             List<Etkinlikler> allEvents = etkinliklerService.findAll();
             model.addAttribute("allEvents", allEvents);
+
+
+            // etkinliği kaydetmeden önce kullanıcı puanını güncelliyor
+            PuanlarController.updatePointForRegister();
+
+            // ekrandaki puan alanına mevcut puanı yazmak için
+            Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+
+            if(puanlarOptional.isPresent()){
+                model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+            }else{
+                model.addAttribute("userPoints", 0);
+            }
 
             model.addAttribute("registrationSuccess", true);
             return "user";
@@ -121,6 +138,16 @@ public class EtkinliklerController {
             List<Etkinlikler> allEvents = etkinliklerService.findAll();
             model.addAttribute("allEvents", allEvents);
 
+            // ekrandaki puan alanına mevcut puanı yazmak için
+            Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+
+            if(puanlarOptional.isPresent()){
+                model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+            }else{
+                model.addAttribute("userPoints", 0);
+            }
+
+
             return "user"; // Güncelleme sonrası kullanıcı sayfasına dön
         }
         return "redirect:/kullanicilar/user"; // Hata durumunda kullanıcı sayfasına dön
@@ -144,6 +171,16 @@ public class EtkinliklerController {
         // Tüm etkinlikleri al
         List<Etkinlikler> allEvents = etkinliklerService.findAll();
         model.addAttribute("allEvents", allEvents);
+
+        // ekrandaki puan alanına mevcut puanı yazmak için
+        Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+
+        if(puanlarOptional.isPresent()){
+            model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+        }else{
+            model.addAttribute("userPoints", 0);
+        }
+
         return "user"; // Aynı sayfada başarılı mesajını gösterir
     }
 

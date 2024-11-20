@@ -1,7 +1,6 @@
 package com.springboot.YazLab1_2.ProjeDeneme.service;
 
 import com.springboot.YazLab1_2.ProjeDeneme.dao.KullanicilarRepository;
-import com.springboot.YazLab1_2.ProjeDeneme.entity.Employee;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

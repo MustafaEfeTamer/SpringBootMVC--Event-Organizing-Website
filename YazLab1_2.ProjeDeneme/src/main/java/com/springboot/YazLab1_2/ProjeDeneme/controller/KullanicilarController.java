@@ -2,8 +2,10 @@ package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Puanlar;
 import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
+import com.springboot.YazLab1_2.ProjeDeneme.service.PuanlarService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/kullanicilar")
@@ -18,16 +21,18 @@ public class KullanicilarController {
 
     private KullanicilarService kullanicilarService;
     private EtkinliklerService etkinliklerService;
+    private PuanlarService puanlarService;
     public static int kullaniciIdOlusturanIcin;
 
 
-    public KullanicilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService) {
+    public KullanicilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService, PuanlarService puanlarService) {
         this.kullanicilarService = kullanicilarService;
         this.etkinliklerService = etkinliklerService;
+        this.puanlarService = puanlarService;
     }
 
 
-    @GetMapping("/login")   // tarayıcıdan url girerek alının isteklerin hepsi 'get' tir
+    @GetMapping("/login")   // tarayıcıdan url girerek alınan isteklerin hepsi 'get' tir
     public String showLoginPage() {
         return "login"; // `login.html` sayfasını gösterir
     }
@@ -54,11 +59,40 @@ public class KullanicilarController {
             // Tüm etkinlikleri al
             List<Etkinlikler> allEvents = etkinliklerService.findAll();
             model.addAttribute("allEvents", allEvents);
+
+            Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+            if(puanlarOptional.isPresent()){
+                model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+            }else{
+                model.addAttribute("userPoints", 0);
+            }
             return "user"; // Aynı sayfada başarılı mesajını gösterir
         } catch (RuntimeException e) {
             model.addAttribute("error", true);  // Hatalı giriş mesajı
             return "login"; // Aynı sayfada hatalı giriş mesajını gösterir
         }
+    }
+
+    @GetMapping("/userPage")
+    public String showUserPage(Model model){
+        Kullanicilar kullanici = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+
+        model.addAttribute("profileImageUrl", kullanici.getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
+        // Kullanıcıya ait etkinlikleri al
+        List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanici.getId());
+        model.addAttribute("userEvents", userEvents);
+
+        // Tüm etkinlikleri al
+        List<Etkinlikler> allEvents = etkinliklerService.findAll();
+        model.addAttribute("allEvents", allEvents);
+
+        Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        if(puanlarOptional.isPresent()){
+            model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+        }else{
+            model.addAttribute("userPoints", 0);
+        }
+        return "user";
     }
 
 
