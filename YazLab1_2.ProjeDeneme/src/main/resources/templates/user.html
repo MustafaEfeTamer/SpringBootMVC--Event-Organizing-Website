@@ -73,7 +73,7 @@
         <div class="col-md-4 main-content">
             <!-- Ana içerik buraya gelecek -->
             <h4>Önerilen Etkinlikler</h4>
-            <div th:each="etkinlik : ${allEvents}" class="list-group-item d-flex justify-content-between align-items-center">
+            <div th:each="etkinlik : ${recommendedEvents}" class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                     <img th:src="${etkinlik.resimUrl}" alt="Etkinlik Resmi" class="event-img">
                     <h5 th:text="${etkinlik.etkinlikAdi}">Etkinlik Adı</h5>

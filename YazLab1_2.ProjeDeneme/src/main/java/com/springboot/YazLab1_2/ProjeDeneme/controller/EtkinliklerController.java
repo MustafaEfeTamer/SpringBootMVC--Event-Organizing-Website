@@ -147,7 +147,6 @@ public class EtkinliklerController {
                 model.addAttribute("userPoints", 0);
             }
 
-
             return "user"; // Güncelleme sonrası kullanıcı sayfasına dön
         }
         return "redirect:/kullanicilar/user"; // Hata durumunda kullanıcı sayfasına dön
@@ -194,5 +193,4 @@ public class EtkinliklerController {
         model.addAttribute("error", "Etkinlik bulunamadı!");
         return "redirect:/kullanicilar/user";
     }
-
 }

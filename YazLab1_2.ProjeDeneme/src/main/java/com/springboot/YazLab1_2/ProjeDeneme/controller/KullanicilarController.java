@@ -1,9 +1,11 @@
 package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Katilimcilar;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Puanlar;
 import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
+import com.springboot.YazLab1_2.ProjeDeneme.service.KatilimcilarService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.PuanlarService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,9 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/kullanicilar")
@@ -22,13 +22,16 @@ public class KullanicilarController {
     private KullanicilarService kullanicilarService;
     private EtkinliklerService etkinliklerService;
     private PuanlarService puanlarService;
+    private KatilimcilarService katilimcilarService;
+
     public static int kullaniciIdOlusturanIcin;
 
 
-    public KullanicilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService, PuanlarService puanlarService) {
+    public KullanicilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService, PuanlarService puanlarService, KatilimcilarService katilimcilarService) {
         this.kullanicilarService = kullanicilarService;
         this.etkinliklerService = etkinliklerService;
         this.puanlarService = puanlarService;
+        this.katilimcilarService = katilimcilarService;
     }
 
 
@@ -46,7 +49,6 @@ public class KullanicilarController {
             model.addAttribute("success", true);  // Başarılı giriş mesajı
             return "admin"; // Admin sayfasına yönlendirir
         }
-
         try {
             Kullanicilar kullanici = kullanicilarService.findByKullaniciAdiveSifre(kullaniciAdi, sifre);
             kullaniciIdOlusturanIcin = kullanici.getId(); // user ekranındaki olusturan id için
@@ -56,9 +58,7 @@ public class KullanicilarController {
             List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanici.getId());
             model.addAttribute("userEvents", userEvents);
 
-            // Tüm etkinlikleri al
-            List<Etkinlikler> allEvents = etkinliklerService.findAll();
-            model.addAttribute("allEvents", allEvents);
+
 
             Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
             if(puanlarOptional.isPresent()){
@@ -66,6 +66,50 @@ public class KullanicilarController {
             }else{
                 model.addAttribute("userPoints", 0);
             }
+
+
+            // Tüm etkinlikleri al
+            List<Etkinlikler> allEvents = etkinliklerService.findAll();
+             // Öneri kuralları
+        List<Etkinlikler> recommendedEvents = new ArrayList<>();
+
+        // İlgi Alanı Uyum Kuralı
+        String[] ilgiAlanlari = kullanici.getIlgiAlanlari().split("[, ]+"); // İlgi alanları virgülle ayrılmış olarak varsayılmıştır
+        for (Etkinlikler etkinlik : allEvents) {
+            String[] etkinlikAciklamasi = etkinlik.getAciklama().split("[, ]+");
+            for (String ilgi : ilgiAlanlari) {
+                    for(String aciklama : etkinlikAciklamasi){
+                        if (aciklama.toLowerCase().contains(ilgi.toLowerCase()) || ilgi.toLowerCase().contains(aciklama.toLowerCase())) {
+                            recommendedEvents.add(etkinlik);
+                            break; // Aynı etkinliği birden fazla kez eklememek için
+                        }
+                    }
+            }
+        }
+
+       // Katılım Geçmişi Uyum Kuralı
+        List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        for(Etkinlikler etkinlikler : allEvents){
+            // Katılım Geçmişi Kuralı
+            for (Katilimcilar katilim : katilimlar) {
+                Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+                if (etkinlik.isPresent() && !recommendedEvents.contains(etkinlikler) && (etkinlik.get().getKategori().equalsIgnoreCase(etkinlikler.getKategori()))) {
+                    recommendedEvents.add(etkinlikler);
+                }
+            }
+        }
+
+        // Coğrafi Konum Kuralı
+        String kullaniciKonumu = kullanici.getKonum();
+        for (Etkinlikler etkinlik : allEvents) {
+            if (etkinlik.getKonum().equalsIgnoreCase(kullaniciKonumu) && !recommendedEvents.contains(etkinlik)) {
+                recommendedEvents.add(etkinlik);
+            }
+        }
+
+        // Önerilen etkinlikleri modele ekleyin
+        model.addAttribute("recommendedEvents", recommendedEvents);
+
             return "user"; // Aynı sayfada başarılı mesajını gösterir
         } catch (RuntimeException e) {
             model.addAttribute("error", true);  // Hatalı giriş mesajı
@@ -75,16 +119,15 @@ public class KullanicilarController {
 
     @GetMapping("/userPage")
     public String showUserPage(Model model){
+
         Kullanicilar kullanici = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
 
         model.addAttribute("profileImageUrl", kullanici.getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
+
         // Kullanıcıya ait etkinlikleri al
         List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanici.getId());
         model.addAttribute("userEvents", userEvents);
 
-        // Tüm etkinlikleri al
-        List<Etkinlikler> allEvents = etkinliklerService.findAll();
-        model.addAttribute("allEvents", allEvents);
 
         Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
         if(puanlarOptional.isPresent()){
@@ -92,6 +135,51 @@ public class KullanicilarController {
         }else{
             model.addAttribute("userPoints", 0);
         }
+
+
+        // Tüm etkinlikleri al
+        List<Etkinlikler> allEvents = etkinliklerService.findAll();
+
+        // Öneri kuralları
+        List<Etkinlikler> recommendedEvents = new ArrayList<>();
+
+        // İlgi Alanı Uyum Kuralı
+        String[] ilgiAlanlari = kullanici.getIlgiAlanlari().split("[, ]+"); // İlgi alanları virgülle ayrılmış olarak varsayılmıştır
+        for (Etkinlikler etkinlik : allEvents) {
+            String[] etkinlikAciklamasi = etkinlik.getAciklama().split("[, ]+");
+            for (String ilgi : ilgiAlanlari) {
+                for(String aciklama : etkinlikAciklamasi){
+                    if (aciklama.toLowerCase().contains(ilgi.toLowerCase()) || ilgi.toLowerCase().contains(aciklama.toLowerCase())) {
+                        recommendedEvents.add(etkinlik);
+                        break; // Aynı etkinliği birden fazla kez eklememek için
+                    }
+                }
+            }
+        }
+
+        // Katılım Geçmişi Uyum Kuralı
+        List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        for(Etkinlikler etkinlikler : allEvents){
+            // Katılım Geçmişi Kuralı
+            for (Katilimcilar katilim : katilimlar) {
+                Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+                if (etkinlik.isPresent() && !recommendedEvents.contains(etkinlikler) && (etkinlik.get().getKategori().equalsIgnoreCase(etkinlikler.getKategori()))) {
+                    recommendedEvents.add(etkinlikler);
+                }
+            }
+        }
+
+        // Coğrafi Konum Kuralı
+        String kullaniciKonumu = kullanici.getKonum();
+        for (Etkinlikler etkinlik : allEvents) {
+            if (etkinlik.getKonum().equalsIgnoreCase(kullaniciKonumu) && !recommendedEvents.contains(etkinlik)) {
+                recommendedEvents.add(etkinlik);
+            }
+        }
+
+        // Önerilen etkinlikleri modele ekleyin
+        model.addAttribute("recommendedEvents", recommendedEvents);
+
         return "user";
     }
 
@@ -139,6 +227,7 @@ public class KullanicilarController {
             return "register";
         }
     }
+
 
 
     // Şifre yenileme sayfasını göstermek için GetMapping
@@ -203,14 +292,95 @@ public class KullanicilarController {
     }
 
     @GetMapping("/userProfile")
-    public String showUserProfile(){
+    public String showUserProfile(Model model){
+        Kullanicilar kullanici = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+
+        model.addAttribute("profileImageUrl", kullanici.getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
+
+
+        List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        List<Etkinlikler> etkinliklerList = new ArrayList<>();
+
+        for(Katilimcilar katilim : katilimlar){
+            Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+            if(etkinlik.isPresent()){
+                etkinliklerList.add(etkinlik.get());
+            }
+        }
+
+        Kullanicilar user = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        model.addAttribute("user", user);
+        model.addAttribute("pastEvents", etkinliklerList);
+
+        Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        if(puanlarOptional.isPresent()){
+            model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+        }else{
+            model.addAttribute("userPoints", 0);
+        }
         return "user-profile";
     }
 
+
+    // Kayıt formundan aldığımız verileri veritabanına işlemek için
     @PostMapping("/userProfile")
-    public String processUserProfile(){
-        return "user-profile";
+    public String processUserProfile(
+                             @RequestParam("kullaniciAdi") String kullaniciAdi,
+                             @RequestParam("sifre") String sifre,
+                             @RequestParam("ePosta") String ePosta,
+                             @RequestParam("konum") String konum,
+                             @RequestParam("ilgiAlanlari") String ilgiAlanlari,
+                             @RequestParam("ad") String ad,
+                             @RequestParam("soyad") String soyad,
+                             @RequestParam("dogumTarihi") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date dogumTarihi,
+                             @RequestParam("cinsiyet") String cinsiyet,
+                             @RequestParam("telefonNumarasi") String telefonNumarasi,
+                             @RequestParam("profilFotografi") String profilFotografi,
+                             Model model) {
+        try {
+            Kullanicilar kullanici = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+            kullanici.setKullaniciAdi(kullaniciAdi);
+            kullanici.setSifre(sifre);
+            kullanici.setePosta(ePosta);
+            kullanici.setKonum(konum);
+            kullanici.setIlgiAlanlari(ilgiAlanlari);
+            kullanici.setAd(ad);
+            kullanici.setSoyad(soyad);
+            kullanici.setDogumTarihi(dogumTarihi);
+            kullanici.setCinsiyet(cinsiyet);
+            kullanici.setTelefonNumarasi(telefonNumarasi);
+            kullanici.setProfilFotografi(profilFotografi);
+
+            kullanicilarService.save(kullanici);
+
+            List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+            List<Etkinlikler> etkinliklerList = new ArrayList<>();
+
+            for(Katilimcilar katilim : katilimlar){
+                Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+                if(etkinlik.isPresent()){
+                    etkinliklerList.add(etkinlik.get());
+                }
+            }
+
+            model.addAttribute("registrationSuccess", true);
+            model.addAttribute("user",kullanici);
+            model.addAttribute("pastEvents", etkinliklerList);
+
+            Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+            if(puanlarOptional.isPresent()){
+                model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+            }else{
+                model.addAttribute("userPoints", 0);
+            }
+
+            return "user-profile";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", "Geçersiz değer.");
+            return "user-profile";
+        }
     }
+
 
     @GetMapping("/userNotifications")
     public String showUserNotifications(){

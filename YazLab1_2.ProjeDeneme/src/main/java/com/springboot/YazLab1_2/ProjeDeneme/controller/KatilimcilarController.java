@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,10 +36,12 @@ public class KatilimcilarController {
         this.puanlarService = puanlarService;
     }
 
+    private static Optional<Etkinlikler> etkinliklerOptional;
+
     @GetMapping("/joinEvent/{id}")
     public String joinEvent(@PathVariable("id") Integer id, Model model) {
 
-        Optional<Etkinlikler> etkinliklerOptional = etkinliklerService.findById(id);
+        etkinliklerOptional = etkinliklerService.findById(id);
 
         if (etkinliklerOptional.isPresent()) {
             Etkinlikler etkinlik = etkinliklerOptional.get();
@@ -50,17 +54,18 @@ public class KatilimcilarController {
 
                 Etkinlikler eskiEtkinlik = eskiEtkinlikOptional.get();
 
-
                 // Etkinlik tarih ve saatlerinin çakışıp çakışmadığını kontrol ediyoruz
                 if (etkinlik.getTarih().equals(eskiEtkinlik.getTarih()) && etkinlik.getSaat().equals(eskiEtkinlik.getSaat())) {
-                    if(etkinlik == eskiEtkinlik){
-                        model.addAttribute("error2", "Bu Etkinliğe Zaten Katıldınız");
+                    if (etkinlik == eskiEtkinlik) {
+                        model.addAttribute("error2", "BU ETKİNLİĞE ZATEN KATILDINIZ. UYGUN ETKİNLİKLER SAĞ TARAFTA LİSTELENMEKTEDİR");
                         model.addAttribute("etkinlik", etkinlik);
+                        model.addAttribute("dropList",  uygunEtkinlikler());
                         return "event-page";
                     }
                     // Çakışma varsa, hata mesajı ekliyoruz
-                    model.addAttribute("error", "Bu Etkinliğe Katılamazsınız. Tarih ve Saat Çakışıyor.");
+                    model.addAttribute("error", "BU ETKİNLİĞE KATILAMAZSINIZ. TARİH VE SAAT ÇAKIŞIYOR. UYGUN ETKİNLİKLER SAĞ TARAFTA LİSTELENMEKTEDİR.");
                     model.addAttribute("etkinlik", etkinlik);
+                    model.addAttribute("dropList",  uygunEtkinlikler());
                     return "event-page"; // Etkinlik detay sayfasına geri dönüyoruz
                 }
             }
@@ -69,12 +74,12 @@ public class KatilimcilarController {
             List<Katilimcilar> katilimcilarList = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
 
 
-            if(katilimcilarList.isEmpty()){
+            if (katilimcilarList.isEmpty()) {
                 model.addAttribute("success", "Etkinliğe Başarıyla Katıldınız ve İLK ETKİNLİK KATILIMINA ÖZEL 20 Puan Kazandınız🥳🎉");
 
                 // başarılı bir şekilde etkinliğe katılacağımız zaman bu methodu çalıştıracağız
                 PuanlarController.updatePoint();
-            }else{
+            } else {
                 model.addAttribute("success", "Etkinliğe Başarıyla Katıldınız ve 10 Puan Kazandınız😀");
 
                 // başarılı bir şekilde etkinliğe katılacağımız zaman bu methodu çalıştıracağız
@@ -92,5 +97,35 @@ public class KatilimcilarController {
         } else {
             return "error"; // Etkinlik bulunamazsa hata sayfasına yönlendiriyoruz
         }
+    }
+
+
+    public List<String> uygunEtkinlikler() {
+        List<String> uygunEtkinlikler = new ArrayList<>();
+        List<Etkinlikler> etkinliklerList = etkinliklerService.findAll();
+        List<Katilimcilar> katilimcilarList = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+
+        Iterator<Etkinlikler> iterator = etkinliklerList.iterator();
+        while (iterator.hasNext()) {
+            Etkinlikler etkinlik = iterator.next();
+            for (Katilimcilar katilim : katilimcilarList) {
+                if (etkinlik.getId() == katilim.getEtkinlikId().longValue()) {
+                    iterator.remove(); // Eşleşen etkinliği listeden sil
+                    break; // Çık çünkü bu etkinliği zaten silmek istiyoruz
+                }
+
+                Optional<Etkinlikler> etkinlik2 = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+                if(etkinlik.getTarih().equals(etkinlik2.get().getTarih()) && etkinlik.getSaat().equals(etkinlik2.get().getSaat())){
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+
+        // Katılmayan etkinlikleri listeye ekle
+        for (Etkinlikler etkinlik : etkinliklerList) {
+            uygunEtkinlikler.add(etkinlik.getEtkinlikAdi()); // Etkinlik adlarını listeye ekle
+        }
+        return uygunEtkinlikler;
     }
 }

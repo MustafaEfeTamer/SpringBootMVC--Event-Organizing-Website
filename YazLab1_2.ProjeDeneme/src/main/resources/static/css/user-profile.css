@@ -1,0 +1,215 @@
+/* Genel ayarlar */
+.container-fluid {
+    height: 100vh;
+}
+
+ Orta içerik alanı
+.main-content {
+    padding-top: 20px;
+    padding-left: 60px;
+}
+
+/* Etkinlik kartı */
+.event {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.event img {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+}
+
+/* Üst Başlık */
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #9CCC65;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+    border-radius: 30px;
+}
+
+/* Ortalanmış Başlık */
+.header h2 {
+    margin: 0;
+}
+
+/* Sağ üst butonlar ve profil alanı */
+.header .profile-area {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: 20px;
+}
+
+.logout-btn2 {
+        font-weight: bold; /* Yazıyı vurgula */
+        margin-top: -20px;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        margin-left: 330px; /* Sol tarafa 20px mesafe */
+        transition: background-color 0.3s ease; /* Hover efekt */
+}
+
+.logout-btn2:hover {
+    background-color: #800000; /* Hover efekti */
+}
+
+.logo {
+    width: 200px;
+    height 200px;
+    margin: auto;
+}
+
+.logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    box-shadow: 0px 0px 3px #5f5f5f,
+                0px 0px 0px 5px #ecf0f3,
+                8px 8px 15px #a7aaa7,
+                -8px -8px 15px #fff;
+}
+
+.profile-btn{
+    font-weight: bold; /* Yazıyı vurgula */
+    transition: background-color 0.3s ease; /* Hover efekt */
+}
+
+.profile-btn:hover{
+    background-color: #424242; /* Hover efekti */
+}
+
+
+
+.notifications-btn{
+    font-weight: bold; /* Yazıyı vurgula */
+    transition: background-color 0.3s ease; /* Hover efekt */
+}
+
+.notifications-btn:hover{
+    background-color: #EF6C00; /* Hover efekti */
+}
+
+
+.logout-btn {
+        font-weight: bold; /* Yazıyı vurgula */
+        margin-top: -20px;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        left: 20px; /* Sol tarafa 20px mesafe */
+        transition: background-color 0.3s ease; /* Hover efekt */
+        background-color: #5D4037;
+}
+
+.logout-btn:hover {
+    background-color: #607D8B; /* Hover efekti */
+}
+
+.user-points-btn {
+    margin-left: 20px;
+    display: inline-block;
+    background-color: #17a2b8; /* Info renginde bir arka plan */
+    color: white; /* Yazı rengini beyaz yap */
+    font-weight: bold; /* Yazıyı vurgula */
+    font-size: 14px; /* Yazı boyutu */
+    padding: 5px 15px; /* İç boşluk */
+    border-radius: 5px; /* Butona yuvarlatılmış kenar */
+    text-decoration: none; /* Alt çizgiyi kaldır */
+    border: 1px solid #138496; /* Hafif koyu kenarlık */
+    text-align: center; /* Ortalansın */
+    transition: background-color 0.3s ease; /* Hover efekt */
+}
+
+.user-points-btn:hover {
+    background-color: #138496; /* Hover efekti */
+}
+
+
+/* Etkinlik Oluştur */
+.sidebar-left {
+    background-color: #455A64;
+    padding: 15px;
+    margin-left: 40px;
+    margin-right: 10px;
+    border-radius: 15px; /* Yuvarlak köşeler */
+}
+
+.sidebar-left h4{
+    text-align: center;
+}
+
+/* Eğer kategori alanına özel boşluk gerekiyorsa */
+.sidebar-left .form-select#kategori {
+    margin-bottom: 10px; /* Kategori ile saat arasına boşluk */
+}
+
+/* Oluşturduğum etkinlikler */
+.sidebar-right {
+    background-color: #607D8B;
+    padding: 15px;
+    margin-right: 10px;
+    border-radius: 15px; /* Yuvarlak köşeler */
+}
+
+.sidebar-right h4{
+    text-align: center;
+}
+
+/* Mevcut Etkinlikler */
+.past-events {
+    background-color: #90A4AE;
+    padding: 20px;
+    border-radius: 15px;  /*Yuvarlak köşeler */
+    margin-right: 30px; /* Sağ tarafta boşluk oluştur */
+}
+
+.past-events h4{
+    text-align: center;
+}
+
+.event-img {
+    width: 150px;
+    height: 100px;
+    object-fit: cover; /* Resmi kırpmadan boyutlandırır */
+    margin-right: 15px;
+    border-radius: 5px; /* Köşeleri yuvarlatır */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.row {
+    margin-top:-30px;
+    display: flex;
+    align-items: flex-start; /* Üstten hizalama */
+}
+
+
+.col-md-4 {
+    margin-left: 150px;
+    flex: 0 0 auto; /* Boyutunu içeriğe göre belirler */
+    max-height: 100vh; /* Yüksekliği ekranın tamamını aşmasın */
+}
+
+
+/* Scrollable alanlar için genel ayarlar */
+.sidebar-left,
+.sidebar-right,
+.main-content {
+    max-height: calc(100vh - 100px); /* Üst başlık (header) yüksekliği çıkarıldı */
+    overflow-y: auto; /* Fazlalık olduğunda dikey kaydırma çubuğu */
+    padding: 20px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); /* Hafif iç gölge */
+}
+
+
+

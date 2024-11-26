@@ -43,11 +43,6 @@ public class Kullanicilar {
 
     private String profilFotografi;
 
-   /* @OneToMany(mappedBy = "gonderici")
-    private List<Mesajlar> gonderilenMesajlar;
-
-    @OneToMany(mappedBy = "alici")
-    private List<Mesajlar> alinanMesajlar;*/
 
     public Kullanicilar(){
 
