@@ -45,8 +45,17 @@ public class KullanicilarController {
                         @RequestParam("sifre") String sifre,
                         Model model) throws InterruptedException {
 
-        if (kullaniciAdi.equals("admin") && sifre.equals("admin123")) {
+        if (kullaniciAdi.equals("admin") && sifre.equals("admin")) {
             model.addAttribute("success", true);  // Başarılı giriş mesajı
+
+            //  Tüm etkinlikleri al
+            List<Etkinlikler> allEvents = etkinliklerService.findAll();
+            model.addAttribute("allEvents", allEvents);
+
+            // Tüm kullanıcıları al
+            List<Kullanicilar> allUsers = kullanicilarService.findAll();
+            model.addAttribute("allUsers", allUsers);
+
             return "admin"; // Admin sayfasına yönlendirir
         }
         try {
@@ -70,8 +79,9 @@ public class KullanicilarController {
 
             // Tüm etkinlikleri al
             List<Etkinlikler> allEvents = etkinliklerService.findAll();
-             // Öneri kuralları
-        List<Etkinlikler> recommendedEvents = new ArrayList<>();
+
+            // Öneri kuralları
+            List<Etkinlikler> recommendedEvents = new ArrayList<>();
 
         // İlgi Alanı Uyum Kuralı
         String[] ilgiAlanlari = kullanici.getIlgiAlanlari().split("[, ]+"); // İlgi alanları virgülle ayrılmış olarak varsayılmıştır
@@ -99,13 +109,26 @@ public class KullanicilarController {
             }
         }
 
-        // Coğrafi Konum Kuralı
-        String kullaniciKonumu = kullanici.getKonum();
-        for (Etkinlikler etkinlik : allEvents) {
-            if (etkinlik.getKonum().equalsIgnoreCase(kullaniciKonumu) && !recommendedEvents.contains(etkinlik)) {
-                recommendedEvents.add(etkinlik);
+
+            List<String> istisnaKelimeler = Arrays.asList("Türkiye", "Mah.", "Cad.", "Sok.", "Sit.", "Blok", "Daire");
+
+            // Coğrafi Konum Kuralı
+            String[] kullaniciKonumu = kullanici.getKonum().split("[, ]+");
+            for (Etkinlikler etkinlik : allEvents) {
+                String[] etkinlikKonumu = etkinlik.getKonum().split("[, ]+");
+                for(String Kkonum : kullaniciKonumu){
+                    for (String Ekonum : etkinlikKonumu){
+                        if ((Kkonum.equalsIgnoreCase(Ekonum) || Ekonum.equalsIgnoreCase(Kkonum)) && !recommendedEvents.contains(etkinlik)) {
+                            if(istisnaKelimeler.contains(Kkonum) || istisnaKelimeler.contains(Ekonum)){
+                                continue;
+                            }
+                            recommendedEvents.add(etkinlik);
+                            break;
+                        }
+                    }
+                }
             }
-        }
+
 
         // Önerilen etkinlikleri modele ekleyin
         model.addAttribute("recommendedEvents", recommendedEvents);
@@ -165,15 +188,28 @@ public class KullanicilarController {
                 Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
                 if (etkinlik.isPresent() && !recommendedEvents.contains(etkinlikler) && (etkinlik.get().getKategori().equalsIgnoreCase(etkinlikler.getKategori()))) {
                     recommendedEvents.add(etkinlikler);
+                    break;
                 }
             }
         }
 
+
+        List<String> istisnaKelimeler = Arrays.asList("Türkiye", "Mah.", "Cad.", "Sok.", "Sit.", "Blok", "Daire");
+
         // Coğrafi Konum Kuralı
-        String kullaniciKonumu = kullanici.getKonum();
+        String[] kullaniciKonumu = kullanici.getKonum().split("[, ]+");
         for (Etkinlikler etkinlik : allEvents) {
-            if (etkinlik.getKonum().equalsIgnoreCase(kullaniciKonumu) && !recommendedEvents.contains(etkinlik)) {
-                recommendedEvents.add(etkinlik);
+            String[] etkinlikKonumu = etkinlik.getKonum().split("[, ]+");
+            for(String Kkonum : kullaniciKonumu){
+                for (String Ekonum : etkinlikKonumu){
+                    if ((Kkonum.equalsIgnoreCase(Ekonum) || Ekonum.equalsIgnoreCase(Kkonum)) && !recommendedEvents.contains(etkinlik)) {
+                        if(istisnaKelimeler.contains(Kkonum) || istisnaKelimeler.contains(Ekonum)){
+                            continue;
+                        }
+                        recommendedEvents.add(etkinlik);
+                        break;
+                    }
+                }
             }
         }
 
@@ -181,6 +217,19 @@ public class KullanicilarController {
         model.addAttribute("recommendedEvents", recommendedEvents);
 
         return "user";
+    }
+
+    @GetMapping("/adminPage")
+    public String showAdminPage(Model model){
+        // Kullanıcıya ait etkinlikleri al
+        List<Etkinlikler> allEvents = etkinliklerService.findAll();
+        model.addAttribute("allEvents", allEvents);
+
+        // Tüm kullanıcıları al
+        List<Kullanicilar> allUsers = kullanicilarService.findAll();
+        model.addAttribute("allUsers", allUsers);
+
+        return "admin";
     }
 
 
@@ -381,6 +430,22 @@ public class KullanicilarController {
         }
     }
 
+    @GetMapping("/deleteUserAdmin/{id}")
+    public String deleteUserAdmin(@PathVariable("id") Integer id, Model model) {
+        // kullanıcıyı silmek için
+        kullanicilarService.deleteById(id);
+
+        //  Tüm etkinlikleri al
+        List<Etkinlikler> allEvents = etkinliklerService.findAll();
+        model.addAttribute("allEvents", allEvents);
+
+        // Tüm kullanıcıları al
+        List<Kullanicilar> allUsers = kullanicilarService.findAll();
+        model.addAttribute("allUsers", allUsers);
+
+        return "admin"; // Aynı sayfada başarılı mesajını gösterir
+    }
+
 
     @GetMapping("/userNotifications")
     public String showUserNotifications(){
@@ -392,4 +457,8 @@ public class KullanicilarController {
         return "user-notifications";
     }
 
+    @GetMapping("/showUserProfileAdmin/{id}")
+    public String showUserProfileAdmin(Model model){
+        return "user-profile-admin";
+    }
 }

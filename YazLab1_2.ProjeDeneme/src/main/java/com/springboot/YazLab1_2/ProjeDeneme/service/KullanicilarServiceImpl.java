@@ -5,6 +5,7 @@ import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,6 +17,11 @@ public class KullanicilarServiceImpl implements KullanicilarService{
         this.kullanicilarRepository = kullanicilarRepository;
     }
 
+
+    @Override
+    public List<Kullanicilar> findAll() {
+        return kullanicilarRepository.findAll();
+    }
 
     @Override
     public Kullanicilar findByKullaniciAdiveSifre(String kullaniciAdi, String sifre) {
@@ -81,5 +87,9 @@ public class KullanicilarServiceImpl implements KullanicilarService{
         return theKullanicilar;
     }
 
+    @Override
+    public void deleteById(Integer id) {
+        kullanicilarRepository.deleteById(id);
+    }
 
 }
