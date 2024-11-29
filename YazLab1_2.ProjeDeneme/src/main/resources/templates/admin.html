@@ -14,23 +14,34 @@
         <div>
             <a th:href="@{/kullanicilar/login}" class="btn btn-danger logout-btn">Hesaptan Çıkış</a>
         </div>
+        <div class="profile-area">
+            <a th:href="@{/kullanicilar/showRegisterAdmin}" class="btn btn-secondary profile-btn">Kullanıcı Ekle</a>
+            <a th:href="@{/etkinlikler/RegisterEventAdmin}" class="btn btn-secondary profile-btn">Etkinlik Ekle</a>
+        </div>
     </div>
 
     <div class="row mt-5">
 
-        <!-- Sol Sidebar -->
-        <div class="col-md-3 sidebar-left">
-            <!-- Etkinlik Oluştur -->
-            <div class="mb-4">
-                <h4>Onay Bekleyen Etkinlikler</h4>
-                <form th:action="@{/etkinlikler/register}" method="post">
-
-                </form>
+        <!-- Onay Bekleyen Etkinlikler -->
+        <div class="col-md-4 sidebar-left">
+            <h4>Onay Bekleyen Etkinlikler</h4>
+            <div th:each="event : ${unapprovedEvents}" class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <img th:src="${event.resim}" alt="Etkinlik Resmi" class="event-img">
+                    <h5 th:text="${event.etkinlikAdi}">Etkinlik İsmi</h5>
+                </div>
+                <div>
+                    <a th:href="@{/etkinlikler/approveEvent/{id}(id=${event.id})}" class="btn btn-danger btn-sm">Onayla</a>
+                    <a th:href="@{/etkinlikler/deleteUserAdmin/{id}(id=${event.id})}" class="btn btn-danger btn-sm">Sil</a>
+<!--
+                    <a th:href="@{/kullanicilar/userProfileAdmin/{id}(id=${kullanici.id})}" class="btn btn-warning btn-sm">Güncelle</a>
+-->
+                </div>
             </div>
         </div>
 
-        <!-- Sağ Sidebar -->
-        <div class="col-md-4 sidebar-right">
+        <!-- Kullanıcılar -->
+        <div class="col-md-3 sidebar-right">
             <h4>Kullanıcılar</h4>
             <div th:each="kullanici : ${allUsers}" class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
@@ -40,24 +51,29 @@
                     <h5 th:text="${kullanici.kullaniciAdi}">Kullanıcı Adı</h5>
                 </div>
                 <div>
-                    <a th:href="@{/kullanicilar/showUserProfileAdmin/{id}(id=${kullanici.id})}" class="btn btn-warning btn-sm">Güncelle</a>
+                    <a th:href="@{/kullanicilar/userProfileAdmin/{id}(id=${kullanici.id})}" class="btn btn-warning btn-sm">Güncelle</a>
                     <a th:href="@{/kullanicilar/deleteUserAdmin/{id}(id=${kullanici.id})}" class="btn btn-danger btn-sm">Sil</a>
                 </div>
             </div>
         </div>
 
-        <!-- Ana İçerik -->
+        <!-- Etkinlikler -->
         <div class="col-md-4 main-content">
             <!-- Ana içerik buraya gelecek -->
             <h4>Etkinlikler</h4>
-            <div th:each="etkinlik : ${allEvents}" class="list-group-item d-flex justify-content-between align-items-center">
+            <div th:each="entry : ${etkinlikMap}" class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                    <img th:src="${etkinlik.resimUrl}" alt="Etkinlik Resmi" class="event-img">
-                    <h5 th:text="${etkinlik.etkinlikAdi}">Etkinlik Adı</h5>
+                    <img th:src="${entry.key.resimUrl}" alt="Etkinlik Resmi" class="event-img">
+                    <div>
+                        <h5>
+                            <span th:text="${entry.key.etkinlikAdi}">Etkinlik Adı</span>
+                            <span th:text="'(' + ${entry.value} + ')'" th:style="'color: red;'"></span>
+                        </h5>
+                    </div>
                 </div>
                 <div>
-                    <a th:href="@{/etkinlikler/showEventAdmin/{id}(id=${etkinlik.id})}" class="btn btn-warning btn-sm">Güncelle</a>
-                    <a th:href="@{/etkinlikler/deleteAdmin/{id}(id=${etkinlik.id})}" class="btn btn-danger btn-sm">Sil</a>
+                    <a th:href="@{/etkinlikler/showEventAdmin/{id}(id=${entry.key.id})}" class="btn btn-warning btn-sm">Güncelle</a>
+                    <a th:href="@{/etkinlikler/deleteAdmin/{id}(id=${entry.key.id})}" class="btn btn-danger btn-sm">Sil</a>
                 </div>
             </div>
         </div>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Kullanıcı Kayıt</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <a th:href="@{/kullanicilar/adminPage}" class="btn btn-secondary btn-back" style="margin-left: 10px; background-color: #6D4C41;">Ana Sayfa</a>
+</head>
+<body>
+<div class="container mt-5">
+  <h3 class="text-center">Kullanıcı Kayıt</h3>
+  <form th:action="@{/kullanicilar/registerUserAdmin}" method="post" class="mt-4">
+
+    <div class="mb-3">
+      <label for="kullaniciAdi" class="form-label">Kullanıcı Adı</label>
+      <input type="text" class="form-control" id="kullaniciAdi" name="kullaniciAdi" required maxlength="50">
+    </div>
+
+    <div class="mb-3">
+      <label for="sifre" class="form-label">Şifre</label>
+      <input type="password" class="form-control" id="sifre" name="sifre" required maxlength="100">
+    </div>
+
+    <div class="mb-3">
+      <label for="ePosta" class="form-label">E-Posta</label>
+      <input type="email" class="form-control" id="ePosta" name="ePosta" required maxlength="100">
+    </div>
+
+    <div class="mb-3">
+      <label for="konum" class="form-label">Konum (Lütfen Şu Formata Uygun Giriş Yapınız: Mah. Cad. Sok. Sit.)</label>
+      <input type="text" class="form-control" id="konum" name="konum">
+    </div>
+
+    <div class="mb-3">
+      <label for="ilgiAlanlari" class="form-label">İlgi Alanları</label>
+      <input type="text" class="form-control" id="ilgiAlanlari" name="ilgiAlanlari">
+    </div>
+
+    <div class="mb-3">
+      <label for="ad" class="form-label">Ad</label>
+      <input type="text" class="form-control" id="ad" name="ad" required maxlength="50">
+    </div>
+
+    <div class="mb-3">
+      <label for="soyad" class="form-label">Soyad</label>
+      <input type="text" class="form-control" id="soyad" name="soyad" required maxlength="50">
+    </div>
+
+    <div class="mb-3">
+      <label for="dogumTarihi" class="form-label">Doğum Tarihi</label>
+      <input type="date" class="form-control" id="dogumTarihi" name="dogumTarihi">
+    </div>
+
+    <div class="mb-3">
+      <label for="cinsiyet" class="form-label">Cinsiyet</label>
+      <select class="form-select" id="cinsiyet" name="cinsiyet">
+        <option value="">Seçiniz</option>
+        <option value="ERKEK">Erkek</option>
+        <option value="KADIN">Kadın</option>
+        <option value="DIGER">Diğer</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="telefonNumarasi" class="form-label">Telefon Numarası</label>
+      <input type="tel" class="form-control" id="telefonNumarasi" name="telefonNumarasi" maxlength="20">
+    </div>
+
+    <div class="mb-3">
+      <label for="profilFotografi" class="form-label">Profil Fotoğrafı URL</label>
+      <input type="url" class="form-control" id="profilFotografi" name="profilFotografi">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Kullanıcıyı Kaydet</button>
+  </form>
+</div>
+</body>
+</html>

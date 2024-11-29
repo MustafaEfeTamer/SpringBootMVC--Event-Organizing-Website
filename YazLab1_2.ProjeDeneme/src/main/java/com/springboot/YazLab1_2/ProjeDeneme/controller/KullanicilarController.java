@@ -1,13 +1,8 @@
 package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
-import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
-import com.springboot.YazLab1_2.ProjeDeneme.entity.Katilimcilar;
-import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
-import com.springboot.YazLab1_2.ProjeDeneme.entity.Puanlar;
-import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
-import com.springboot.YazLab1_2.ProjeDeneme.service.KatilimcilarService;
-import com.springboot.YazLab1_2.ProjeDeneme.service.KullanicilarService;
-import com.springboot.YazLab1_2.ProjeDeneme.service.PuanlarService;
+import com.springboot.YazLab1_2.ProjeDeneme.dao.PuanlarRepository;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.*;
+import com.springboot.YazLab1_2.ProjeDeneme.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,15 +18,19 @@ public class KullanicilarController {
     private EtkinliklerService etkinliklerService;
     private PuanlarService puanlarService;
     private KatilimcilarService katilimcilarService;
+    private OnaylanmamisEtkinliklerService onaylanmamisEtkinliklerService;
 
     public static int kullaniciIdOlusturanIcin;
+    public static int userId;
 
 
-    public KullanicilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService, PuanlarService puanlarService, KatilimcilarService katilimcilarService) {
+
+    public KullanicilarController(KullanicilarService kullanicilarService, EtkinliklerService etkinliklerService, PuanlarService puanlarService, KatilimcilarService katilimcilarService, OnaylanmamisEtkinliklerService onaylanmamisEtkinliklerService) {
         this.kullanicilarService = kullanicilarService;
         this.etkinliklerService = etkinliklerService;
         this.puanlarService = puanlarService;
         this.katilimcilarService = katilimcilarService;
+        this.onaylanmamisEtkinliklerService = onaylanmamisEtkinliklerService;
     }
 
 
@@ -48,6 +47,10 @@ public class KullanicilarController {
         if (kullaniciAdi.equals("admin") && sifre.equals("admin")) {
             model.addAttribute("success", true);  // Başarılı giriş mesajı
 
+            // Onay Bekleyen Etkinlikleri Al
+            List<OnaylanmamisEtkinlikler> unapprovedEvents = onaylanmamisEtkinliklerService.findAll();
+            model.addAttribute("unapprovedEvents", unapprovedEvents);
+
             //  Tüm etkinlikleri al
             List<Etkinlikler> allEvents = etkinliklerService.findAll();
             model.addAttribute("allEvents", allEvents);
@@ -55,6 +58,27 @@ public class KullanicilarController {
             // Tüm kullanıcıları al
             List<Kullanicilar> allUsers = kullanicilarService.findAll();
             model.addAttribute("allUsers", allUsers);
+
+
+            // Etkinliği oluşturan kişiyi al
+            List<String> olusturanAdlari = new ArrayList<>();
+            for (Etkinlikler event : allEvents) {
+                Kullanicilar olusturan = kullanicilarService.findByKullaniciId(event.getOlusturan());
+                if (olusturan != null) { // Kullanıcı bulunduğundan emin olun
+                    olusturanAdlari.add(olusturan.getAd());
+                } else {
+                    olusturanAdlari.add("Bilinmiyor"); // Kullanıcı bulunamazsa bir varsayılan değer ekleyin
+                }
+            }
+
+
+            // Map'i oluştur ve model'e ekle
+            Map<Etkinlikler, String> etkinlikMap = new LinkedHashMap<>();
+            for (int i = 0; i < allEvents.size(); i++) {
+                etkinlikMap.put(allEvents.get(i), olusturanAdlari.get(i));
+            }
+            model.addAttribute("etkinlikMap", etkinlikMap);
+
 
             return "admin"; // Admin sayfasına yönlendirir
         }
@@ -228,6 +252,25 @@ public class KullanicilarController {
         // Tüm kullanıcıları al
         List<Kullanicilar> allUsers = kullanicilarService.findAll();
         model.addAttribute("allUsers", allUsers);
+
+
+        // Etkinliği oluşturan kişiyi al
+        List<String> olusturanAdlari = new ArrayList<>();
+        for (Etkinlikler event : allEvents) {
+            Kullanicilar olusturan = kullanicilarService.findByKullaniciId(event.getOlusturan());
+            if (olusturan != null) { // Kullanıcı bulunduğundan emin olun
+                olusturanAdlari.add(olusturan.getAd());
+            } else {
+                olusturanAdlari.add("Bilinmiyor"); // Kullanıcı bulunamazsa bir varsayılan değer ekleyin
+            }
+        }
+
+        // Map'i oluştur ve model'e ekle
+        Map<Etkinlikler, String> etkinlikMap = new LinkedHashMap<>();
+        for (int i = 0; i < allEvents.size(); i++) {
+            etkinlikMap.put(allEvents.get(i), olusturanAdlari.get(i));
+        }
+        model.addAttribute("etkinlikMap", etkinlikMap);
 
         return "admin";
     }
@@ -443,7 +486,25 @@ public class KullanicilarController {
         List<Kullanicilar> allUsers = kullanicilarService.findAll();
         model.addAttribute("allUsers", allUsers);
 
-        return "admin"; // Aynı sayfada başarılı mesajını gösterir
+        // Etkinliği oluşturan kişiyi al
+        List<String> olusturanAdlari = new ArrayList<>();
+        for (Etkinlikler event : allEvents) {
+            Kullanicilar olusturan = kullanicilarService.findByKullaniciId(event.getOlusturan());
+            if (olusturan != null) { // Kullanıcı bulunduğundan emin olun
+                olusturanAdlari.add(olusturan.getAd());
+            } else {
+                olusturanAdlari.add("Bilinmiyor"); // Kullanıcı bulunamazsa bir varsayılan değer ekleyin
+            }
+        }
+
+        // Map'i oluştur ve model'e ekle
+        Map<Etkinlikler, String> etkinlikMap = new LinkedHashMap<>();
+        for (int i = 0; i < allEvents.size(); i++) {
+            etkinlikMap.put(allEvents.get(i), olusturanAdlari.get(i));
+        }
+        model.addAttribute("etkinlikMap", etkinlikMap);
+
+        return "admin";
     }
 
 
@@ -457,8 +518,140 @@ public class KullanicilarController {
         return "user-notifications";
     }
 
-    @GetMapping("/showUserProfileAdmin/{id}")
-    public String showUserProfileAdmin(Model model){
+    @GetMapping("/userProfileAdmin/{id}")
+    public String showUserProfileAdmin(@PathVariable("id") Integer id, Model model){
+        userId = id;
+        Kullanicilar kullanici = kullanicilarService.findByKullaniciId(userId);
+
+        model.addAttribute("profileImageUrl", kullanici.getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
+
+
+        List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(userId);
+        List<Etkinlikler> etkinliklerList = new ArrayList<>();
+
+        for(Katilimcilar katilim : katilimlar){
+            Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+            if(etkinlik.isPresent()){
+                etkinliklerList.add(etkinlik.get());
+            }
+        }
+
+
+        Kullanicilar user = kullanicilarService.findByKullaniciId(userId);
+        model.addAttribute("user", user);
+        model.addAttribute("pastEvents", etkinliklerList);
+
+        Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(userId);
+        if(puanlarOptional.isPresent()){
+            model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+        }else{
+            model.addAttribute("userPoints", 0);
+        }
         return "user-profile-admin";
+    }
+
+
+
+    @PostMapping("/userProfileAdmin")
+    public String processUserProfileAdmin(
+            @RequestParam("kullaniciAdi") String kullaniciAdi,
+            @RequestParam("sifre") String sifre,
+            @RequestParam("ePosta") String ePosta,
+            @RequestParam("konum") String konum,
+            @RequestParam("ilgiAlanlari") String ilgiAlanlari,
+            @RequestParam("ad") String ad,
+            @RequestParam("soyad") String soyad,
+            @RequestParam("dogumTarihi") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date dogumTarihi,
+            @RequestParam("cinsiyet") String cinsiyet,
+            @RequestParam("telefonNumarasi") String telefonNumarasi,
+            @RequestParam("profilFotografi") String profilFotografi,
+            Model model) {
+        try {
+            Kullanicilar kullanici = kullanicilarService.findByKullaniciId(userId);
+            kullanici.setKullaniciAdi(kullaniciAdi);
+            kullanici.setSifre(sifre);
+            kullanici.setePosta(ePosta);
+            kullanici.setKonum(konum);
+            kullanici.setIlgiAlanlari(ilgiAlanlari);
+            kullanici.setAd(ad);
+            kullanici.setSoyad(soyad);
+            kullanici.setDogumTarihi(dogumTarihi);
+            kullanici.setCinsiyet(cinsiyet);
+            kullanici.setTelefonNumarasi(telefonNumarasi);
+            kullanici.setProfilFotografi(profilFotografi);
+
+            kullanicilarService.save(kullanici);
+
+
+            // sayfayı yeniden oluşturmak için gerekli düzenlemeler
+            List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(userId);
+            List<Etkinlikler> etkinliklerList = new ArrayList<>();
+
+            for(Katilimcilar katilim : katilimlar){
+                Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+                if(etkinlik.isPresent()){
+                    etkinliklerList.add(etkinlik.get());
+                }
+            }
+
+            model.addAttribute("registrationSuccess", true);
+            model.addAttribute("user",kullanici);
+            model.addAttribute("pastEvents", etkinliklerList);
+
+            Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(userId);
+            if(puanlarOptional.isPresent()){
+                model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+            }else{
+                model.addAttribute("userPoints", 0);
+            }
+
+            return "user-profile-admin";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", "Geçersiz değer.");
+            return "user-profile-admin";
+        }
+    }
+
+
+    @GetMapping("/showRegisterAdmin")
+    public String showRegisterAdmin(){
+        return "register-user-admin";
+    }
+
+    @PostMapping("/registerUserAdmin")
+    public String registerUserAdmin(@RequestParam("kullaniciAdi") String kullaniciAdi,
+                               @RequestParam("sifre") String sifre,
+                               @RequestParam("ePosta") String ePosta,
+                               @RequestParam("konum") String konum,
+                               @RequestParam("ilgiAlanlari") String ilgiAlanlari,
+                               @RequestParam("ad") String ad,
+                               @RequestParam("soyad") String soyad,
+                               @RequestParam("dogumTarihi") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date dogumTarihi,
+                               @RequestParam("cinsiyet") String cinsiyet,
+                               @RequestParam("telefonNumarasi") String telefonNumarasi,
+                               @RequestParam("profilFotografi") String profilFotografi,
+                               Model model) {
+        try {
+            Kullanicilar yeniKullanici = new Kullanicilar();
+            yeniKullanici.setKullaniciAdi(kullaniciAdi);
+            yeniKullanici.setSifre(sifre);
+            yeniKullanici.setePosta(ePosta);
+            yeniKullanici.setKonum(konum);
+            yeniKullanici.setIlgiAlanlari(ilgiAlanlari);
+            yeniKullanici.setAd(ad);
+            yeniKullanici.setSoyad(soyad);
+            yeniKullanici.setDogumTarihi(dogumTarihi);
+            yeniKullanici.setCinsiyet(cinsiyet);
+            yeniKullanici.setTelefonNumarasi(telefonNumarasi);
+            yeniKullanici.setProfilFotografi(profilFotografi);
+
+            kullanicilarService.save(yeniKullanici);
+
+            model.addAttribute("registrationSuccess", true);
+            return "register-user-admin";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", "Geçersiz değer.");
+            return "register-user-admin";
+        }
     }
 }

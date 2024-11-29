@@ -92,4 +92,5 @@ public class KullanicilarServiceImpl implements KullanicilarService{
         kullanicilarRepository.deleteById(id);
     }
 
+
 }

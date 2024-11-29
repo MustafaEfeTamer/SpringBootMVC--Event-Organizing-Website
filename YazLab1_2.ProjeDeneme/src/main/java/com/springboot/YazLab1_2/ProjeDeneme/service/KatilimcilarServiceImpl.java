@@ -28,4 +28,9 @@ public class KatilimcilarServiceImpl implements KatilimcilarService{
     public Katilimcilar save(Katilimcilar theKatilimci) {
         return katilimcilarRepository.save(theKatilimci);
     }
+
+    @Override
+    public void deleteEventByUserIdEventId(Integer userId, Integer eventId) {
+        katilimcilarRepository.deleteByKullaniciIdAndEtkinlikId(userId.longValue(), eventId.longValue());
+    }
 }

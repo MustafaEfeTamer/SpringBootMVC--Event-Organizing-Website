@@ -3,6 +3,7 @@ package com.springboot.YazLab1_2.ProjeDeneme.controller;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Katilimcilar;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Puanlar;
 import com.springboot.YazLab1_2.ProjeDeneme.service.EtkinliklerService;
 import com.springboot.YazLab1_2.ProjeDeneme.service.KatilimcilarService;
@@ -127,5 +128,43 @@ public class KatilimcilarController {
             uygunEtkinlikler.add(etkinlik.getEtkinlikAdi()); // Etkinlik adlarını listeye ekle
         }
         return uygunEtkinlikler;
+    }
+
+
+
+    @GetMapping("/deleteEventUserAttended/{id}")
+    public String deleteEventUserAttended(@PathVariable("id") Integer id, Model model) {
+
+        katilimcilarService.deleteEventByUserIdEventId(KullanicilarController.userId, id);
+
+
+        Kullanicilar kullanici = kullanicilarService.findByKullaniciId(KullanicilarController.userId);
+
+        model.addAttribute("profileImageUrl", kullanici.getProfilFotografi());
+
+
+        // Kullanıcının geçmişte katıldığı etkinlikler
+        List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.userId);
+        List<Etkinlikler> etkinliklerList = new ArrayList<>();
+
+        for(Katilimcilar katilim : katilimlar){
+            Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+            if(etkinlik.isPresent()){
+                etkinliklerList.add(etkinlik.get());
+            }
+        }
+
+
+        model.addAttribute("user", kullanici);
+        model.addAttribute("pastEvents", etkinliklerList);
+
+        Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.userId);
+        if(puanlarOptional.isPresent()){
+            model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+        }else{
+            model.addAttribute("userPoints", 0);
+        }
+
+        return "user-profile-admin";
     }
 }
