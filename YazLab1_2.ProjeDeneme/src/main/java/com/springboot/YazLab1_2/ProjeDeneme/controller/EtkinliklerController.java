@@ -63,60 +63,8 @@ public class EtkinliklerController {
             model.addAttribute("userEvents", userEvents);
 
 
-            // Tüm etkinlikleri al
-            List<Etkinlikler> allEvents = etkinliklerService.findAll();
-
-            // Öneri kuralları
-            List<Etkinlikler> recommendedEvents = new ArrayList<>();
-
-            // İlgi Alanı Uyum Kuralı
-            String[] ilgiAlanlari = kullanicilar.getIlgiAlanlari().split("[, ]+"); // İlgi alanları virgülle ayrılmış olarak varsayılmıştır
-            for (Etkinlikler etkinlik : allEvents) {
-                String[] etkinlikAciklamasi = etkinlik.getAciklama().split("[, ]+");
-                for (String ilgi : ilgiAlanlari) {
-                    for(String aciklama2 : etkinlikAciklamasi){
-                        if (aciklama2.toLowerCase().contains(ilgi.toLowerCase()) || ilgi.toLowerCase().contains(aciklama2.toLowerCase())) {
-                            recommendedEvents.add(etkinlik);
-                            break; // Aynı etkinliği birden fazla kez eklememek için
-                        }
-                    }
-                }
-            }
-
-            // Katılım Geçmişi Uyum Kuralı
-            List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
-            for(Etkinlikler etkinlikler : allEvents){
-                // Katılım Geçmişi Kuralı
-                for (Katilimcilar katilim : katilimlar) {
-                    Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
-                    if (etkinlik.isPresent() && !recommendedEvents.contains(etkinlikler) && (etkinlik.get().getKategori().equalsIgnoreCase(etkinlikler.getKategori()))) {
-                        recommendedEvents.add(etkinlikler);
-                    }
-                }
-            }
-
-
-            List<String> istisnaKelimeler = Arrays.asList("Türkiye", "Mah.", "Cad.", "Sok.", "Sit.", "Blok", "Daire");
-
-            // Coğrafi Konum Kuralı
-            String[] kullaniciKonumu = kullanicilar.getKonum().split("[, ]+");
-            for (Etkinlikler etkinlik : allEvents) {
-                String[] etkinlikKonumu = etkinlik.getKonum().split("[, ]+");
-                for(String Kkonum : kullaniciKonumu){
-                    for (String Ekonum : etkinlikKonumu){
-                        if ((Kkonum.equalsIgnoreCase(Ekonum) || Ekonum.equalsIgnoreCase(Kkonum)) && !recommendedEvents.contains(etkinlik)) {
-                            if(istisnaKelimeler.contains(Kkonum) || istisnaKelimeler.contains(Ekonum)){
-                                continue;
-                            }
-                            recommendedEvents.add(etkinlik);
-                            break;
-                        }
-                    }
-                }
-            }
-
             // Önerilen etkinlikleri modele ekleyin
-            model.addAttribute("recommendedEvents", recommendedEvents);
+            model.addAttribute("recommendedEvents", recommendedEvents());
 
 
             // etkinliği kaydetmeden önce kullanıcı puanını güncelliyor
@@ -137,6 +85,63 @@ public class EtkinliklerController {
             model.addAttribute("error", "Geçersiz değer.");
             return "redirect:/kullanicilar/user";
         }
+    }
+
+    List<Etkinlikler> recommendedEvents(){
+        Kullanicilar kullanicilar = kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin); // user ekranındaki olusturan id için
+
+        // Tüm etkinlikleri al
+        List<Etkinlikler> allEvents = etkinliklerService.findAll();
+
+        // Öneri kuralları
+        List<Etkinlikler> recommendedEvents = new ArrayList<>();
+
+        // İlgi Alanı Uyum Kuralı
+        String[] ilgiAlanlari = kullanicilar.getIlgiAlanlari().split("[, ]+"); // İlgi alanları virgülle ayrılmış olarak varsayılmıştır
+        for (Etkinlikler etkinlik : allEvents) {
+            String[] etkinlikAciklamasi = etkinlik.getAciklama().split("[, ]+");
+            for (String ilgi : ilgiAlanlari) {
+                for(String aciklama2 : etkinlikAciklamasi){
+                    if (aciklama2.toLowerCase().contains(ilgi.toLowerCase()) || ilgi.toLowerCase().contains(aciklama2.toLowerCase())) {
+                        recommendedEvents.add(etkinlik);
+                        break; // Aynı etkinliği birden fazla kez eklememek için
+                    }
+                }
+            }
+        }
+
+        // Katılım Geçmişi Uyum Kuralı
+        List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        for(Etkinlikler etkinlikler : allEvents){
+            // Katılım Geçmişi Kuralı
+            for (Katilimcilar katilim : katilimlar) {
+                Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
+                if (etkinlik.isPresent() && !recommendedEvents.contains(etkinlikler) && (etkinlik.get().getKategori().equalsIgnoreCase(etkinlikler.getKategori()))) {
+                    recommendedEvents.add(etkinlikler);
+                }
+            }
+        }
+
+
+        List<String> istisnaKelimeler = Arrays.asList("Türkiye", "Mah.", "Cad.", "Sok.", "Sit.", "Blok", "Daire");
+
+        // Coğrafi Konum Kuralı
+        String[] kullaniciKonumu = kullanicilar.getKonum().split("[, ]+");
+        for (Etkinlikler etkinlik : allEvents) {
+            String[] etkinlikKonumu = etkinlik.getKonum().split("[, ]+");
+            for(String Kkonum : kullaniciKonumu){
+                for (String Ekonum : etkinlikKonumu){
+                    if ((Kkonum.equalsIgnoreCase(Ekonum) || Ekonum.equalsIgnoreCase(Kkonum)) && !recommendedEvents.contains(etkinlik)) {
+                        if(istisnaKelimeler.contains(Kkonum) || istisnaKelimeler.contains(Ekonum)){
+                            continue;
+                        }
+                        recommendedEvents.add(etkinlik);
+                        break;
+                    }
+                }
+            }
+        }
+        return recommendedEvents;
     }
 
     @GetMapping("/update/{id}")
@@ -187,60 +192,8 @@ public class EtkinliklerController {
             model.addAttribute("userEvents", userEvents);
 
 
-            // Tüm etkinlikleri al
-            List<Etkinlikler> allEvents = etkinliklerService.findAll();
-
-            // Öneri kuralları
-            List<Etkinlikler> recommendedEvents = new ArrayList<>();
-
-            // İlgi Alanı Uyum Kuralı
-            String[] ilgiAlanlari = kullanicilar.getIlgiAlanlari().split("[, ]+"); // İlgi alanları virgülle ayrılmış olarak varsayılmıştır
-            for (Etkinlikler etkinlik2 : allEvents) {
-                String[] etkinlikAciklamasi = etkinlik2.getAciklama().split("[, ]+");
-                for (String ilgi : ilgiAlanlari) {
-                    for(String aciklama2 : etkinlikAciklamasi){
-                        if (aciklama2.toLowerCase().contains(ilgi.toLowerCase()) || ilgi.toLowerCase().contains(aciklama2.toLowerCase())) {
-                            recommendedEvents.add(etkinlik2);
-                            break; // Aynı etkinliği birden fazla kez eklememek için
-                        }
-                    }
-                }
-            }
-
-            // Katılım Geçmişi Uyum Kuralı
-            List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
-            for(Etkinlikler etkinlikler : allEvents){
-                // Katılım Geçmişi Kuralı
-                for (Katilimcilar katilim : katilimlar) {
-                    Optional<Etkinlikler> etkinlik2 = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
-                    if (etkinlik2.isPresent() && !recommendedEvents.contains(etkinlikler) && (etkinlik2.get().getKategori().equalsIgnoreCase(etkinlikler.getKategori()))) {
-                        recommendedEvents.add(etkinlikler);
-                    }
-                }
-            }
-
-
-            List<String> istisnaKelimeler = Arrays.asList("Türkiye", "Mah.", "Cad.", "Sok.", "Sit.", "Blok", "Daire");
-
-            // Coğrafi Konum Kuralı
-            String[] kullaniciKonumu = kullanicilar.getKonum().split("[, ]+");
-            for (Etkinlikler etkinlik2 : allEvents) {
-                String[] etkinlikKonumu = etkinlik2.getKonum().split("[, ]+");
-                for(String Kkonum : kullaniciKonumu){
-                    for (String Ekonum : etkinlikKonumu){
-                        if ((Kkonum.equalsIgnoreCase(Ekonum) || Ekonum.equalsIgnoreCase(Kkonum)) && !recommendedEvents.contains(etkinlik2)) {
-                            if(istisnaKelimeler.contains(Kkonum) || istisnaKelimeler.contains(Ekonum)){
-                                continue;
-                            }
-                            recommendedEvents.add(etkinlik2);
-                            break;
-                        }
-                    }
-                }
-            }
-
             // Önerilen etkinlikleri modele ekleyin
-            model.addAttribute("recommendedEvents", recommendedEvents);
+            model.addAttribute("recommendedEvents", recommendedEvents());
 
 
             // ekrandaki puan alanına mevcut puanı yazmak için
@@ -256,7 +209,6 @@ public class EtkinliklerController {
         }
         return "redirect:/kullanicilar/user"; // Hata durumunda kullanıcı sayfasına dön
     }
-
 
 
     @PostMapping("/updateAdmin/{id}")
@@ -307,62 +259,8 @@ public class EtkinliklerController {
         List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanicilar.getId());
         model.addAttribute("userEvents", userEvents);
 
-
-
-        // Tüm etkinlikleri al
-        List<Etkinlikler> allEvents = etkinliklerService.findAll();
-
-        // Öneri kuralları
-        List<Etkinlikler> recommendedEvents = new ArrayList<>();
-
-        // İlgi Alanı Uyum Kuralı
-        String[] ilgiAlanlari = kullanicilar.getIlgiAlanlari().split("[, ]+"); // İlgi alanları virgülle ayrılmış olarak varsayılmıştır
-        for (Etkinlikler etkinlik : allEvents) {
-            String[] etkinlikAciklamasi = etkinlik.getAciklama().split("[, ]+");
-            for (String ilgi : ilgiAlanlari) {
-                for(String aciklama : etkinlikAciklamasi){
-                    if (aciklama.toLowerCase().contains(ilgi.toLowerCase()) || ilgi.toLowerCase().contains(aciklama.toLowerCase())) {
-                        recommendedEvents.add(etkinlik);
-                        break; // Aynı etkinliği birden fazla kez eklememek için
-                    }
-                }
-            }
-        }
-
-        // Katılım Geçmişi Uyum Kuralı
-        List<Katilimcilar> katilimlar = katilimcilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
-        for(Etkinlikler etkinlikler : allEvents){
-            // Katılım Geçmişi Kuralı
-            for (Katilimcilar katilim : katilimlar) {
-                Optional<Etkinlikler> etkinlik = etkinliklerService.findById(katilim.getEtkinlikId().intValue());
-                if (etkinlik.isPresent() && !recommendedEvents.contains(etkinlikler) && (etkinlik.get().getKategori().equalsIgnoreCase(etkinlikler.getKategori()))) {
-                    recommendedEvents.add(etkinlikler);
-                }
-            }
-        }
-
-
-        List<String> istisnaKelimeler = Arrays.asList("Türkiye", "Mah.", "Cad.", "Sok.", "Sit.", "Blok", "Daire");
-
-        // Coğrafi Konum Kuralı
-        String[] kullaniciKonumu = kullanicilar.getKonum().split("[, ]+");
-        for (Etkinlikler etkinlik : allEvents) {
-            String[] etkinlikKonumu = etkinlik.getKonum().split("[, ]+");
-            for(String Kkonum : kullaniciKonumu){
-                for (String Ekonum : etkinlikKonumu){
-                    if ((Kkonum.equalsIgnoreCase(Ekonum) || Ekonum.equalsIgnoreCase(Kkonum)) && !recommendedEvents.contains(etkinlik)) {
-                        if(istisnaKelimeler.contains(Kkonum) || istisnaKelimeler.contains(Ekonum)){
-                            continue;
-                        }
-                        recommendedEvents.add(etkinlik);
-                        break;
-                    }
-                }
-            }
-        }
-
         // Önerilen etkinlikleri modele ekleyin
-        model.addAttribute("recommendedEvents", recommendedEvents);
+        model.addAttribute("recommendedEvents", recommendedEvents());
 
 
         // ekrandaki puan alanına mevcut puanı yazmak için
@@ -381,6 +279,10 @@ public class EtkinliklerController {
     public String deleteEventAdmin(@PathVariable("id") Integer id, Model model) {
         // etkinliği silmek için
         etkinliklerService.deleteById(id);
+
+        // Onay Bekleyen Etkinlikleri Al
+        List<OnaylanmamisEtkinlikler> unapprovedEvents = onaylanmamisEtkinliklerService.findAll();
+        model.addAttribute("unapprovedEvents", unapprovedEvents);
 
         // Tüm etkinlikleri al
         List<Etkinlikler> allEvents = etkinliklerService.findAll();
@@ -568,5 +470,114 @@ public class EtkinliklerController {
         model.addAttribute("etkinlikMap", etkinlikMap);
 
         return "admin";
+    }
+
+    @GetMapping("/unapprovedDetails/{id}")
+    public String showUnapprovedEvent(@PathVariable("id") Integer id, Model model) {
+        Optional<OnaylanmamisEtkinlikler> etkinlikOptional = onaylanmamisEtkinliklerService.findById(id);
+        if (etkinlikOptional.isPresent()) {
+            model.addAttribute("etkinlik", etkinlikOptional.get());
+            return "unapproved-event-details"; // Güncelleme sayfasını render eder
+        }
+        model.addAttribute("error", "Etkinlik bulunamadı!");
+        return "admin";
+    }
+
+    @GetMapping("/search")
+    public String searchEtkinlik(@RequestParam("query") String query, Model model) {
+        List<Etkinlikler> etkinliklerList = new ArrayList<>();
+
+        for(Etkinlikler etkinlik : etkinliklerService.findAll()){
+            if(etkinlik.getEtkinlikAdi().toLowerCase().contains(query.toLowerCase())){
+                etkinliklerList.add(etkinlik);
+            }
+        }
+
+        // Tüm kullanıcıları al
+        List<Kullanicilar> allUsers = kullanicilarService.findAll();
+        model.addAttribute("allUsers", allUsers);
+
+        // Onay Bekleyen Etkinlikleri Al
+        List<OnaylanmamisEtkinlikler> unapprovedEvents = onaylanmamisEtkinliklerService.findAll();
+        model.addAttribute("unapprovedEvents", unapprovedEvents);
+
+        // filtrelenmiş etkinlikler
+        model.addAttribute("allEvents", etkinliklerList);
+
+        // Etkinliği oluşturan kişiyi al
+        List<String> olusturanAdlari = new ArrayList<>();
+        for (Etkinlikler event : etkinliklerList) {
+            Kullanicilar olusturan = kullanicilarService.findByKullaniciId(event.getOlusturan());
+            if (olusturan != null) { // Kullanıcı bulunduğundan emin olun
+                olusturanAdlari.add(olusturan.getAd());
+            } else {
+                olusturanAdlari.add("Bilinmiyor"); // Kullanıcı bulunamazsa bir varsayılan değer ekleyin
+            }
+        }
+
+        // Map'i oluştur ve model'e ekle
+        Map<Etkinlikler, String> etkinlikMap = new LinkedHashMap<>();
+        for (int i = 0; i < etkinliklerList.size(); i++) {
+            etkinlikMap.put(etkinliklerList.get(i), olusturanAdlari.get(i));
+        }
+        model.addAttribute("etkinlikMap", etkinlikMap);
+        return "admin";
+    }
+
+    @GetMapping("/search2")
+    public String searchEtkinlik2(@RequestParam("query") String query, Model model) {
+        List<Etkinlikler> etkinliklerList = new ArrayList<>();
+
+        // Kullanıcıya ait etkinlikleri al
+        List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(KullanicilarController.kullaniciIdOlusturanIcin);
+
+        for(Etkinlikler etkinlik : userEvents){
+            if(etkinlik.getEtkinlikAdi().toLowerCase().contains(query.toLowerCase())){
+                etkinliklerList.add(etkinlik);
+            }
+        }
+        model.addAttribute("profileImageUrl", kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin).getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
+
+        model.addAttribute("userEvents", etkinliklerList);
+
+        model.addAttribute("recommendedEvents", recommendedEvents());
+
+        Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        if(puanlarOptional.isPresent()){
+            model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+        }else{
+            model.addAttribute("userPoints", 0);
+        }
+
+        return "user";
+    }
+
+
+    @GetMapping("/search3")
+    public String searchEtkinlik3(@RequestParam("query") String query, Model model) {
+        List<Etkinlikler> etkinliklerList = new ArrayList<>();
+
+        for(Etkinlikler etkinlik : etkinliklerService.findAll()){
+            if(etkinlik.getEtkinlikAdi().toLowerCase().contains(query.toLowerCase())){
+                etkinliklerList.add(etkinlik);
+            }
+        }
+
+        // Kullanıcıya ait etkinlikleri al
+        List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(KullanicilarController.kullaniciIdOlusturanIcin);
+
+        model.addAttribute("profileImageUrl", kullanicilarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin).getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
+
+        model.addAttribute("userEvents", userEvents);
+
+        model.addAttribute("recommendedEvents", etkinliklerList);
+
+        Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
+        if(puanlarOptional.isPresent()){
+            model.addAttribute("userPoints", puanlarOptional.get().getPuan());
+        }else{
+            model.addAttribute("userPoints", 0);
+        }
+        return "user";
     }
 }

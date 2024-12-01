@@ -11,4 +11,6 @@ public interface KatilimcilarService {
     Katilimcilar save(Katilimcilar theKatilimci);
     @Transactional
     void deleteEventByUserIdEventId(Integer userId, Integer eventId);
+    List<Katilimcilar> findByEtkinlikId(Long id);
+
 }

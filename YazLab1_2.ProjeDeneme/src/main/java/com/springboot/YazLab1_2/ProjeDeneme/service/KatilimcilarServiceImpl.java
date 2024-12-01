@@ -33,4 +33,9 @@ public class KatilimcilarServiceImpl implements KatilimcilarService{
     public void deleteEventByUserIdEventId(Integer userId, Integer eventId) {
         katilimcilarRepository.deleteByKullaniciIdAndEtkinlikId(userId.longValue(), eventId.longValue());
     }
+
+    @Override
+    public List<Katilimcilar> findByEtkinlikId(Long id) {
+        return katilimcilarRepository.findByEtkinlikId(id);
+    }
 }

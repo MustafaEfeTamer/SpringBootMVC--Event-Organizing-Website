@@ -11,13 +11,11 @@ public class Mesajlar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer mesajId;
 
-    @ManyToOne
-    @JoinColumn(name = "Gönderici_ID", nullable = false)
-    private Kullanicilar gonderici;
+    @Column(name = "Gönderici_ID", nullable = false)
+    private Integer gonderici;
 
-    @ManyToOne
-    @JoinColumn(name = "Alıcı_ID", nullable = false)
-    private Kullanicilar alici;
+    @Column(name = "Alıcı_ID", nullable = false)
+    private Integer alici;
 
     @Column(name = "Mesaj_Metni")
     private String mesajMetni;
@@ -30,7 +28,8 @@ public class Mesajlar {
 
     }
 
-    public Mesajlar(Kullanicilar gonderici, Kullanicilar alici, String mesajMetni, Date gonderimZamani) {
+    public Mesajlar(Integer mesajId, Integer gonderici, Integer alici, String mesajMetni, Date gonderimZamani) {
+        this.mesajId = mesajId;
         this.gonderici = gonderici;
         this.alici = alici;
         this.mesajMetni = mesajMetni;
@@ -45,19 +44,19 @@ public class Mesajlar {
         this.mesajId = mesajId;
     }
 
-    public Kullanicilar getGonderici() {
+    public Integer getGonderici() {
         return gonderici;
     }
 
-    public void setGonderici(Kullanicilar gonderici) {
+    public void setGonderici(Integer gonderici) {
         this.gonderici = gonderici;
     }
 
-    public Kullanicilar getAlici() {
+    public Integer getAlici() {
         return alici;
     }
 
-    public void setAlici(Kullanicilar alici) {
+    public void setAlici(Integer alici) {
         this.alici = alici;
     }
 

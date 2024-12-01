@@ -3,6 +3,7 @@ package com.springboot.YazLab1_2.ProjeDeneme.controller;
 import com.springboot.YazLab1_2.ProjeDeneme.dao.PuanlarRepository;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.*;
 import com.springboot.YazLab1_2.ProjeDeneme.service.*;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,6 +43,7 @@ public class KullanicilarController {
     @PostMapping("/login")
     public String login(@RequestParam("kullaniciAdi") String kullaniciAdi,
                         @RequestParam("sifre") String sifre,
+                        HttpSession session,
                         Model model) throws InterruptedException {
 
         if (kullaniciAdi.equals("admin") && sifre.equals("admin")) {
@@ -87,10 +89,10 @@ public class KullanicilarController {
             kullaniciIdOlusturanIcin = kullanici.getId(); // user ekranındaki olusturan id için
             model.addAttribute("success", true);  // Başarılı giriş mesajı
             model.addAttribute("profileImageUrl", kullanici.getProfilFotografi()); // Kullanıcı resim URL'sini modele ekliyoruz
+
             // Kullanıcıya ait etkinlikleri al
             List<Etkinlikler> userEvents = etkinliklerService.findByOlusturan(kullanici.getId());
             model.addAttribute("userEvents", userEvents);
-
 
 
             Optional<Puanlar> puanlarOptional = puanlarService.findByKullaniciId(KullanicilarController.kullaniciIdOlusturanIcin);
@@ -100,6 +102,7 @@ public class KullanicilarController {
                 model.addAttribute("userPoints", 0);
             }
 
+            session.setAttribute("kullaniciAdi", kullaniciAdi);
 
             // Tüm etkinlikleri al
             List<Etkinlikler> allEvents = etkinliklerService.findAll();
@@ -245,6 +248,10 @@ public class KullanicilarController {
 
     @GetMapping("/adminPage")
     public String showAdminPage(Model model){
+        // Onay Bekleyen Etkinlikleri Al
+        List<OnaylanmamisEtkinlikler> unapprovedEvents = onaylanmamisEtkinliklerService.findAll();
+        model.addAttribute("unapprovedEvents", unapprovedEvents);
+
         // Kullanıcıya ait etkinlikleri al
         List<Etkinlikler> allEvents = etkinliklerService.findAll();
         model.addAttribute("allEvents", allEvents);
@@ -478,6 +485,10 @@ public class KullanicilarController {
         // kullanıcıyı silmek için
         kullanicilarService.deleteById(id);
 
+        // Onay Bekleyen Etkinlikleri Al
+        List<OnaylanmamisEtkinlikler> unapprovedEvents = onaylanmamisEtkinliklerService.findAll();
+        model.addAttribute("unapprovedEvents", unapprovedEvents);
+
         //  Tüm etkinlikleri al
         List<Etkinlikler> allEvents = etkinliklerService.findAll();
         model.addAttribute("allEvents", allEvents);
@@ -506,7 +517,6 @@ public class KullanicilarController {
 
         return "admin";
     }
-
 
     @GetMapping("/userNotifications")
     public String showUserNotifications(){
@@ -653,5 +663,47 @@ public class KullanicilarController {
             model.addAttribute("error", "Geçersiz değer.");
             return "register-user-admin";
         }
+    }
+
+
+    @GetMapping("/search")
+    public String searchUser(@RequestParam("query") String query, Model model) {
+        List<Kullanicilar> kullanicilarList = new ArrayList<>();
+
+        for(Kullanicilar kullanici : kullanicilarService.findAll()){
+            if(kullanici.getKullaniciAdi().toLowerCase().contains(query.toLowerCase())){
+                kullanicilarList.add(kullanici);
+            }
+        }
+
+        // Filtrelenmiş kullanıcılar
+        model.addAttribute("allUsers", kullanicilarList);
+
+        // Onay Bekleyen Etkinlikleri Al
+        List<OnaylanmamisEtkinlikler> unapprovedEvents = onaylanmamisEtkinliklerService.findAll();
+        model.addAttribute("unapprovedEvents", unapprovedEvents);
+
+        //  Tüm etkinlikleri al
+        List<Etkinlikler> allEvents = etkinliklerService.findAll();
+        model.addAttribute("allEvents", allEvents);
+
+        // Etkinliği oluşturan kişiyi al
+        List<String> olusturanAdlari = new ArrayList<>();
+        for (Etkinlikler event : allEvents) {
+            Kullanicilar olusturan = kullanicilarService.findByKullaniciId(event.getOlusturan());
+            if (olusturan != null) { // Kullanıcı bulunduğundan emin olun
+                olusturanAdlari.add(olusturan.getAd());
+            } else {
+                olusturanAdlari.add("Bilinmiyor"); // Kullanıcı bulunamazsa bir varsayılan değer ekleyin
+            }
+        }
+
+        // Map'i oluştur ve model'e ekle
+        Map<Etkinlikler, String> etkinlikMap = new LinkedHashMap<>();
+        for (int i = 0; i < allEvents.size(); i++) {
+            etkinlikMap.put(allEvents.get(i), olusturanAdlari.get(i));
+        }
+        model.addAttribute("etkinlikMap", etkinlikMap);
+        return "admin";
     }
 }

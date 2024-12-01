@@ -1,7 +1,9 @@
 package com.springboot.YazLab1_2.ProjeDeneme.service;
 
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Etkinlikler;
+import com.springboot.YazLab1_2.ProjeDeneme.entity.Katilimcilar;
 import com.springboot.YazLab1_2.ProjeDeneme.entity.Kullanicilar;
+import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.util.List;
 

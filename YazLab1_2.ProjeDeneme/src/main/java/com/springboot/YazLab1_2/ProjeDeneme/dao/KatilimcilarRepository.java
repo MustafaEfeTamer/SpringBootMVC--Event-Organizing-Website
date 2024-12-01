@@ -9,5 +9,6 @@ import java.util.List;
 public interface KatilimcilarRepository extends JpaRepository<Katilimcilar, Long> {
     List<Katilimcilar> findByKullaniciId(Integer kullaniciId);
     void deleteByKullaniciIdAndEtkinlikId(Long kullaniciId, Long etkinlikId);
+    List<Katilimcilar> findByEtkinlikId(Long etkinlikId);
 
 }

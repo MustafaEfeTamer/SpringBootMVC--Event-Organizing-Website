@@ -73,6 +73,7 @@ public class KullanicilarServiceImpl implements KullanicilarService{
         return theKullanicilar;
     }
 
+
     @Override
     public Kullanicilar findByKullaniciId(Integer id) {
         Optional<Kullanicilar> result = kullanicilarRepository.findById(id);

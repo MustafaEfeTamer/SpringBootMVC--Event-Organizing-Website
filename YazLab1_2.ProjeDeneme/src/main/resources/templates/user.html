@@ -4,13 +4,23 @@
     <title>Kullanıcı Ana Sayfa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/user.css}"> <!-- CSS dosyasını dahil ediyoruz -->
+    <style>
+        .btn-primary{
+            background-color: #6D4C41;
+        }
+        .profile-btn{
+            background-color: #FF5722;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container-fluid">
     <!-- Üst Başlık -->
-    <div class="header">
-        <h2>Kullanıcı Ana Sayfa</h2>
+    <div class="header" style="background-color: #8D6E63">
+        <h2>
+            <span th:text="'Hoşgeldinnnn ' + ${session.kullaniciAdi} + '😀'">Hoşgeldin Kullanıcı</span>
+        </h2>
         <div>
             <a th:href="@{/kullanicilar/login}" class="btn btn-danger logout-btn">Hesaptan Çıkış</a>
         </div>
@@ -19,7 +29,6 @@
             <div class="logo">
                 <img th:src="${profileImageUrl}" alt="Kullanıcı Profili">
             </div>
-            <a th:href="@{/kullanicilar/userNotifications}" class="btn btn-warning notifications-btn">Bildirimler</a>
 
             <a href="#" class="btn btn-info user-points-btn">
                 <span th:text="'Puan: ' + ${userPoints}"></span>
@@ -35,27 +44,70 @@
             <div class="mb-4">
                 <h4>Etkinlik Oluştur</h4>
                 <form th:action="@{/etkinlikler/register}" method="post">
-                    <input type="text" class="form-control mb-2" placeholder="Etkinlik Adı" name="etkinlikAdi">
-                    <input type="text" class="form-control mb-2" placeholder="Açıklama" name="aciklama">
-                    <input type="number" class="form-control mb-2" placeholder="Etkinlik Süresi" name="etkinlikSuresi">
-                    <input type="text" class="form-control mb-2" placeholder="Konum (Geçerli Format: Mah. Cad. Sok. Sit.)" name="konum">
-                    <select class="form-select" id="kategori" name="kategori">
-                        <option value="KÜLTÜREL">Seçiniz</option>
-                        <option value="SPOR">Spor</option>
-                        <option value="SOSYAL">Sosyal</option>
-                        <option value="SEYAHAT">Seyahat</option>
-                    </select>
-                    <input type="time" class="form-control mb-2" placeholder="Saat" name="saat">
-                    <input type="date" class="form-control mb-2" placeholder="Tarih" name="tarih">
-                    <input type="url" class="form-control mb-2" placeholder="Resim" name="resimUrl">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control form-control-sm" id="etkinlikAdi" placeholder="Etkinlik Adı" name="etkinlikAdi">
+                        <label for="etkinlikAdi">Etkinlik Adı</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control form-control-sm" id="aciklama" placeholder="Açıklama" name="aciklama">
+                        <label for="aciklama">Açıklama</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" class="form-control form-control-sm" id="etkinlikSuresi" placeholder="Etkinlik Süresi" name="etkinlikSuresi">
+                        <label for="etkinlikSuresi">Etkinlik Süresi</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control form-control-sm" id="konum" placeholder="Konum (Geçerli Format: Mah. Cad. Sok. Sit.)" name="konum">
+                        <label for="konum">Konum</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <select class="form-select form-select-sm" id="kategori" name="kategori" aria-label="Kategori Seçimi">
+                            <option value="" selected>Seçiniz</option>
+                            <option value="KÜLTÜREL">Kültürel</option>
+                            <option value="SPOR">Spor</option>
+                            <option value="SOSYAL">Sosyal</option>
+                            <option value="SEYAHAT">Seyahat</option>
+                        </select>
+                        <label for="kategori">Kategori</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="time" class="form-control form-control-sm" id="saat" placeholder="Saat" name="saat">
+                        <label for="saat">Saat</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="date" class="form-control form-control-sm" id="tarih" placeholder="Tarih" name="tarih">
+                        <label for="tarih">Tarih</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="url" class="form-control form-control-sm" id="resimUrl" placeholder="Resim URL" name="resimUrl">
+                        <label for="resimUrl">Resim URL</label>
+                    </div>
                     <button type="submit" class="btn btn-primary w-100">Oluştur</button>
                 </form>
             </div>
         </div>
 
+
         <!-- Sağ Sidebar -->
         <div class="col-md-4 sidebar-right">
             <h4>Oluşturduğum Etkinlikler</h4>
+            <div class="mb-4">
+                <!-- Etkinlik Ara 2 -->
+                <form th:action="@{/etkinlikler/search2}" method="get" class="d-flex">
+                    <div class="form-floating flex-grow-1 me-2">
+                        <input
+                                type="text"
+                                class="form-control"
+                                id="etkinlikAra2"
+                                placeholder="Etkinlik Ara"
+                                name="query"
+                        >
+                        <label for="etkinlikAra2">Etkinlik Ara</label>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-sm">Ara</button>
+                </form>
+            </div>
+
             <div th:each="etkinlik : ${userEvents}" class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                     <img th:src="${etkinlik.resimUrl}" alt="Etkinlik Resmi" class="event-img">
@@ -71,8 +123,25 @@
 
         <!-- Ana İçerik -->
         <div class="col-md-4 main-content">
-            <!-- Ana içerik buraya gelecek -->
             <h4>Önerilen Etkinlikler</h4>
+
+            <div class="mb-4">
+                <!-- Etkinlik Ara 3 -->
+                <form th:action="@{/etkinlikler/search3}" method="get" class="d-flex">
+                    <div class="form-floating flex-grow-1 me-2">
+                        <input
+                                type="text"
+                                class="form-control"
+                                id="etkinlikAra3"
+                                placeholder="Etkinlik Ara"
+                                name="query"
+                        >
+                        <label for="etkinlikAra3">Etkinlik Ara</label>
+                    </div>
+                    <button type="submit" class="btn btn-warning btn-sm">Ara</button>
+                </form>
+            </div>
+
             <div th:each="etkinlik : ${recommendedEvents}" class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                     <img th:src="${etkinlik.resimUrl}" alt="Etkinlik Resmi" class="event-img">
